@@ -37,57 +37,32 @@ Parts of this code were adapted from bbcflib <https://github.com/bbcf/bbcflib> a
 from bein import *
 from bein.util import *
 import sys, os, re, json, shutil, gzip, tarfile, bz2, pickle, urllib, time
+from bbcflib.common import set_file_descr
 
-M = MiniLIMS("/data/leukemia_data/minilims")
+fastqfiles=["/data/fastq_gwendal/Lib_49_h5q60RqudyQ9_L1_R2_001.fastq.gz" ,"/data/fastq_gwendal/Lib_49_ZkvqIfPdFcLY_L1_R1_001.fastq.gz"]
 
-with execution(M) as ex:
-   touch(ex, "boris")
-   print ex.working_directory
-
+#Modified from bbcflib:
 @program
-def fastqc(fastqfile,outdir=None,options=None):
-    """Binds ``fastqc`` (`<http://www.bioinformatics.bbsrc.ac.uk/>`_) which generates a QC report of short reads present in the fastq file.
-    """
-    outfile = re.sub(".fastq","",os.path.basename(fastqfile))+'_fastqc.zip'
+def fastqc(fastqfile,outdir=".",options=None):
+    outfile = re.sub(".fastq.gz","",os.path.basename(fastqfile))+'_fastqc.zip'
     if not(isinstance(options,list)): options = []
     if outdir and os.path.isdir(outdir):
         outfile = os.path.join(outdir,outfile)
         options += ["--outdir",outdir]
     return {'arguments': ["fastqc","--noextract"]+options+[fastqfile],'return_value': outfile}
 
-def run_fastqc( ex, job):
-    """
-    Returns the name of the report file.
-    """
-    futures = {}
-    descr = {'step':'qc','groupId':0,'type':'zip'}
-    for gid,group in job.groups.iteritems():
-        futures[gid] = {}
-        for rid,run in group['runs'].iteritems():
-            if isinstance(run,tuple):
-                futures[gid][rid] = (fastqc.nonblocking(ex,run[0],via=via),
-                                     fastqc.nonblocking(ex,run[1],via=via))
-            else:
-                futures[gid][rid] = fastqc.nonblocking(ex,run,via=via)
-    for gid,group in job.groups.iteritems():
-        descr['groupId'] = gid
-        for rid,run in group['runs'].iteritems():
-            rname = group['name']
-            if len(group['runs'])>1:
-                rname += "_"
-                rname += group['run_names'].get(rid,str(rid))
-            if isinstance(run,tuple):
-                qcreport = futures[gid][rid][0].wait()
-                if os.path.exists(qcreport):
-                    ex.add( qcreport,
-                            description=set_file_descr(rname+"_R1_fastqc.zip",**descr) )
-                qcreport = futures[gid][rid][1].wait()
-                if os.path.exists(qcreport):
-                    ex.add( qcreport,
-                            description=set_file_descr(rname+"_R2_fastqc.zip",**descr) )
-            else:
-                qcreport = futures[gid][rid].wait()
-                if os.path.exists(qcreport):
-                    ex.add( qcreport,
-                            description=set_file_descr(rname+"_fastqc.zip",**descr) )
-    return None
+def add_file_fastqc(execution,filename, description="", alias="None"):
+    execution.add(filename,description=description,alias=alias)
+
+M = MiniLIMS("/data/leukemia_data/minilims")
+#fileid=M.import_file(fastqfiles[0])
+
+with execution(M) as ex:
+    outdir="."
+    file=fastqc(ex,fastqfiles[0],outdir=outdir,options=None)
+    print "done report"
+    print file
+    print os.listdir(outdir)
+    pause()
+    add_file_fastqc(ex,file)
+
