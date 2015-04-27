@@ -39,7 +39,7 @@ from bein.util import *
 import sys, os, re, json, shutil, gzip, tarfile, bz2, pickle, urllib, time
 from bbcflib.common import set_file_descr
 
-fastqfiles=["/data/fastq_gwendal/Lib_49_h5q60RqudyQ9_L1_R2_001.fastq.gz" ,"/data/fastq_gwendal/Lib_49_ZkvqIfPdFcLY_L1_R1_001.fastq.gz"]
+hg19_path="/data/genomes/hg19.bwa/hg19.fa"
 
 #Modified from bbcflib:
 @program
@@ -51,36 +51,59 @@ def fastqc(fastqfile,outdir=".",options=None):
         options += ["--outdir",outdir]
     return {'arguments': ["fastqc","--noextract"]+options+[fastqfile],'return_value': outfile}
 
+@program
+def _bwa(fastqfiles,options=None):
+    if "_R2_" in fastqfiles[0]:
+        fastqfiles=fastqfiles[::-1]
+    return {'arguments': ["bwa","mem", "-t 4"]+options+[hg19_path]+fastqfiles,
+            'return_value': None}
+
+def bwa(ex, fastqfiles, options=None,filename=None):
+    if filename == None:
+        filename = unique_filename_in()
+    _bwa(ex, fastqfiles, options, stdout=filename)
+    return filename
+
+
+
 def add_file_fastqc(execution,filename, description="", alias="None"):
     execution.add(filename,description=description,alias=alias)
 
 def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
 
-M = MiniLIMS("/data/leukemia_data/minilims")
+M = MiniLIMS("/data/leukemia_data/fastqreports")
 #fileid=M.import_file(fastqfiles[0])
 
 runs=range(1,85)
 
 files={}
 
-for run in runs:
-    runname="_".join(["Lib",str(run)])
-    files[run] = [f for f in listdir_fullpath('/data/fastq_gwendal') if re.match(r'.*%s_'%runname,f,re.IGNORECASE)]
-    print files[run]
+# for run in runs:
+#     runname="_".join(["Lib",str(run)])
+#     files[run] = [f for f in listdir_fullpath('/data/fastq_gwendal') if re.match(r'.*%s_'%runname,f,re.IGNORECASE)]
+#     print files[run]
 
-files=dict((k, files[k]) for k in (1,2,3))
+#files=dict((k, files[k]) for k in (1,2,3))
+
+# with execution(M) as ex:
+#     outdir="."
+#     for file in files.keys():
+#         print files[file]
+#         # report=fastqc(ex,files[file][0],outdir=outdir,options=None)
+#         # add_file_fastqc(ex,report,alias="_".join(["Lib",str(files.keys()[file-1]),"report_1"]))
+#         # report=fastqc(ex,files[file][1],outdir=outdir,options=None)
+#         # add_file_fastqc(ex,report,alias="_".join(["Lib",str(files.keys()[file-1]),"report_2"]))
+#         futures=[fastqc.nonblocking(ex,f,outdir=outdir,options=None) for f in files[file]]
+#         reports=[f.wait() for f in futures]
+#         for report in reports:
+#             i=str(report)[-17:-15]
+#             add_file_fastqc(ex,report,alias="_".join(["Lib",str(files.keys()[file-1]),"report",i]))
+#
 
 with execution(M) as ex:
-    outdir="."
-    for file in files.keys()[1:3]:
+    for file in files.keys():
         print files[file]
-        # report=fastqc(ex,files[file][0],outdir=outdir,options=None)
-        # add_file_fastqc(ex,report,alias="_".join(["Lib",str(files.keys()[file-1]),"report_1"]))
-        # report=fastqc(ex,files[file][1],outdir=outdir,options=None)
-        # add_file_fastqc(ex,report,alias="_".join(["Lib",str(files.keys()[file-1]),"report_2"]))
-        futures=[fastqc.nonblocking(ex,f,outdir=outdir,options=None) for f in files[file]]
-        reports=[f.wait() for f in futures]
-        for i,report in enumerate(reports):
-            add_file_fastqc(ex,report,alias="_".join(["Lib",str(files.keys()[file-1]),"report",str(i)]))
-
+        alignment=bwa(ex,files[file])
+        name="_".join(["Lib",str(files.keys()[file-1]),"bwa.bam"])
+        ex.add(alignment,alias=)
