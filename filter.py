@@ -41,7 +41,7 @@ for record in vcf_reader:
 		if len(item.split(":"))>1:
 			x.append(item.split(":")[0])
 			y.append(item.split(":")[1])
-		db=dict(zip(x,y))
+	db=dict(zip(x,y))
 	maxAF=0.1
 	for sample in record.samples:
 		if sample.data.AD:
