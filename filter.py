@@ -48,7 +48,7 @@ for record in vcf_reader:
 			AF=map(float,sample.data.AD)[1]/sum(map(float,sample.data.AD))
 			if AF>maxAF:
 				maxAF=AF
-	if float(db.get("g1000",0))<0.05 and float(db.get("cg69",0))<0.05 and maxAF>0.1 and (not record.FILTER or record.FILTER==["off_target"]):
+	if float(db.get("g1000",0))<0.05 and float(db.get("cg69",0))<0.05 and maxAF>0.1 and not record.FILTER :
 		vcf_writer.write_record(record)
 	
 vcf.Writer.close(vcf_writer)
