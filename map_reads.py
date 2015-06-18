@@ -39,7 +39,7 @@ from bein.util import *
 import sys, os, re, json, shutil, gzip, tarfile, bz2, pickle, urllib, time
 from bbcflib.common import set_file_descr
 
-hg19_path="/data/genomes/hg19.bwa/hg19.fa"
+hg_path="/data/genomes/Broadhs37/hs37d5.fa"
 
 #Modified from bbcflib:
 @program
@@ -52,19 +52,11 @@ def fastqc(fastqfile,outdir=".",options=None):
     return {'arguments': ["fastqc","--noextract"]+options+[fastqfile],'return_value': outfile}
 
 @program
-def _bwa(fastqfiles,options=None):
+def bwa(fastqfiles,fileout):
     if "_R2_" in fastqfiles[0]:
         fastqfiles=fastqfiles[::-1]
-    return {'arguments': ["bwa","mem", "-t 4"]+options+[hg19_path]+fastqfiles,
-            'return_value': None}
-
-def bwa(ex, fastqfiles, options=None,filename=None):
-    if filename == None:
-        filename = unique_filename_in()
-    _bwa(ex, fastqfiles, options, stdout=filename)
-    return filename
-
-
+    return {'arguments': ["/data/alignment_temp/run_bwa_onefile.sh"]+fastqfiles+fileout,
+            'return_value': fileout}
 
 def add_file_fastqc(execution,filename, description="", alias="None"):
     execution.add(filename,description=description,alias=alias)
@@ -73,18 +65,20 @@ def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
 
 M = MiniLIMS("/data/leukemia_data/fastqreports")
+M=MiniLIMS("/data/leukemia_data/bamfiles")
+
 #fileid=M.import_file(fastqfiles[0])
 
 runs=range(1,85)
 
 files={}
 
-# for run in runs:
-#     runname="_".join(["Lib",str(run)])
-#     files[run] = [f for f in listdir_fullpath('/data/fastq_gwendal') if re.match(r'.*%s_'%runname,f,re.IGNORECASE)]
-#     print files[run]
+ for run in runs:
+     runname="_".join(["Lib",str(run)])
+     files[run] = [f for f in listdir_fullpath('/data/fastq_gwendal') if re.match(r'.*%s_'%runname,f,re.IGNORECASE)]
+     print files[run]
 
-#files=dict((k, files[k]) for k in (1,2,3))
+files=dict((k, files[k]) for k in (1,2,3))
 
 # with execution(M) as ex:
 #     outdir="."
