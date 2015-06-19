@@ -64,7 +64,7 @@ def add_file_fastqc(execution,filename, description="", alias="None"):
 def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
 
-M = MiniLIMS("/data/leukemia_data/fastqreports")
+#M = MiniLIMS("/data/leukemia_data/fastqreports")
 M=MiniLIMS("/data/leukemia_data/bamfiles")
 
 #fileid=M.import_file(fastqfiles[0])
@@ -100,6 +100,8 @@ with execution(M) as ex:
         print files[file]
 	print file
         alignment=bwa(ex,files[file],"outfile")
-        name="_".join(["Lib",str(files.keys()[file-1]),"bwa.bam"])
+       	index=alignment+".bai"
+	name="_".join(["Lib",str(files.keys()[file-1]),"bwa.bam"])
+	indexname=name+".bai"
         ex.add(alignment,alias=name)
-	ex.add(alignment.".bai",alias=name.".bai")
+	ex.add(index,alias=indexname)
