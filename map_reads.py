@@ -55,7 +55,7 @@ def fastqc(fastqfile,outdir=".",options=None):
 def bwa(fastqfiles,fileout):
     if "_R2_" in fastqfiles[0]:
         fastqfiles=fastqfiles[::-1]
-    return {'arguments': ["/data/alignment_temp/run_bwa_onefile.sh"]+fastqfiles+fileout,
+    return {'arguments': ["/data/alignment_temp/run_bwa_onefile.sh"]+fastqfiles+[fileout],
             'return_value': fileout}
 
 def add_file_fastqc(execution,filename, description="", alias="None"):
@@ -73,10 +73,10 @@ runs=range(1,85)
 
 files={}
 
- for run in runs:
-     runname="_".join(["Lib",str(run)])
-     files[run] = [f for f in listdir_fullpath('/data/fastq_gwendal') if re.match(r'.*%s_'%runname,f,re.IGNORECASE)]
-     print files[run]
+for run in runs:
+    runname="_".join(["Lib",str(run)])
+    files[run] = [f for f in listdir_fullpath('/data/fastq_gwendal') if re.match(r'.*%s_'%runname,f,re.IGNORECASE)]
+    print files[run]
 
 files=dict((k, files[k]) for k in (1,2,3))
 
@@ -98,6 +98,8 @@ files=dict((k, files[k]) for k in (1,2,3))
 with execution(M) as ex:
     for file in files.keys():
         print files[file]
-        alignment=bwa(ex,files[file])
+	print file
+        alignment=bwa(ex,files[file],"outfile")
         name="_".join(["Lib",str(files.keys()[file-1]),"bwa.bam"])
-        ex.add(alignment,alias=)
+        ex.add(alignment,alias=name)
+	ex.add(alignment.".bai",alias=name.".bai")
