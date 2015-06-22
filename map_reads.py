@@ -52,15 +52,11 @@ def fastqc(fastqfile,outdir=".",options=None):
 
 @program
 def bwa(fastqfiles,fileout):
-    if "_R2_" in fastqfiles[0]:
-        fastqfiles=fastqfiles[::-1]
     return {'arguments': ["/data/alignment_temp/run_bwa_onefile.sh"]+fastqfiles+[fileout],
             'return_value': fileout}
 
 @program
 def cutadapt(fastqfiles,suffix,rm):
-    	if "_R2_" in fastqfiles[0]:
-        	fastqfiles=fastqfiles[::-1]
 	name1=os.path.splitext(os.path.splitext(os.path.basename(fastqfiles[0]))[0])[0]+"."+suffix+".fastq.gz"
         name2=os.path.splitext(os.path.splitext(os.path.basename(fastqfiles[1]))[0])[0]+"."+suffix+".fastq.gz"
 	return {'arguments': ["/data/alignment_temp/cutadapt.sh"]+fastqfiles+[suffix]+[rm],'return_value': [name1 , name2]}
@@ -72,9 +68,7 @@ def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
 
 @task
-def trim_adapt(ex,files):
-	suffix="adaptedtrimmed5"
-#	fileouts={}
+def trim_adapt(ex,files,suffix):
 	for file in files.keys():
 		print files[file]
 		print file
@@ -83,9 +77,7 @@ def trim_adapt(ex,files):
 		outputs=cutadapt(ex,files[file],suffix,"5")
 		ex.add(outputs[0],alias=name1,description=name1)
 		ex.add(outputs[1],alias=name2,description=name2)
-#		fileouts[str(file)+"_1"]=name1
-#		fileouts[str(file)+"_2"]=name2
-	return {"test":name1}
+	return {"test":"test"}
 #To use a file you can use execution.use()
 
 @task
