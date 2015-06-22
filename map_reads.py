@@ -39,7 +39,6 @@ from bein.util import *
 import sys, os, re, json, shutil, gzip, tarfile, bz2, pickle, urllib, time
 from bbcflib.common import set_file_descr
 
-hg_path="/data/genomes/Broadhs37/hs37d5.fa"
 
 #Modified from bbcflib:
 @program
@@ -58,50 +57,49 @@ def bwa(fastqfiles,fileout):
     return {'arguments': ["/data/alignment_temp/run_bwa_onefile.sh"]+fastqfiles+[fileout],
             'return_value': fileout}
 
+@program
+def cutadapt(fastqfiles,suffix,rm):
+    	if "_R2_" in fastqfiles[0]:
+        	fastqfiles=fastqfiles[::-1]
+	name1=os.path.splitext(os.path.splitext(os.path.basename(fastqfiles[0]))[0])[0]+"."+suffix+".fastq.gz"
+        name2=os.path.splitext(os.path.splitext(os.path.basename(fastqfiles[1]))[0])[0]+"."+suffix+".fastq.gz"
+	return {'arguments': ["/data/alignment_temp/cutadapt.sh"]+fastqfiles+[suffix]+[rm],'return_value': [name1 , name2]}
+
 def add_file_fastqc(execution,filename, description="", alias="None"):
     execution.add(filename,description=description,alias=alias)
 
 def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
 
-#M = MiniLIMS("/data/leukemia_data/fastqreports")
-M=MiniLIMS("/data/leukemia_data/bamfiles")
+@task
+def trim_adapt(ex,files):
+	suffix="adaptedtrimmed5"
+#	fileouts={}
+	for file in files.keys():
+		print files[file]
+		print file
+		name1="Lib_"+str(file)+"_R1_"+suffix+".fastq.gz"
+		name2="Lib_"+str(file)+"_R2_"+suffix+".fastq.gz"
+		outputs=cutadapt(ex,files[file],suffix,"5")
+		ex.add(outputs[0],alias=name1,description=name1)
+		ex.add(outputs[1],alias=name2,description=name2)
+#		fileouts[str(file)+"_1"]=name1
+#		fileouts[str(file)+"_2"]=name2
+	return {"test":name1}
+#To use a file you can use execution.use()
 
-#fileid=M.import_file(fastqfiles[0])
+@task
+def align_bwa(ex,files):
+	for file in files.keys():
+		print files[file]
+		print file
+		name="_".join(["Lib",str(file),"bwa.bam"])
+		indexname=name+".bai"
+		alignment=bwa(ex,files[file],name)
+		index=alignment+".bai"
+		print name
+		print indexname
+		ex.add(alignment,alias=name,description=name)
+		ex.add(index,alias=indexname,description=indexname,associate_to_filename=alignment,template="%s.bai")
 
-runs=range(1,85)
-
-files={}
-
-for run in runs:
-    runname="_".join(["Lib",str(run)])
-    files[run] = [f for f in listdir_fullpath('/data/fastq_gwendal') if re.match(r'.*%s_'%runname,f,re.IGNORECASE)]
-    print files[run]
-
-files=dict((k, files[k]) for k in (1,2,3))
-
-# with execution(M) as ex:
-#     outdir="."
-#     for file in files.keys():
-#         print files[file]
-#         # report=fastqc(ex,files[file][0],outdir=outdir,options=None)
-#         # add_file_fastqc(ex,report,alias="_".join(["Lib",str(files.keys()[file-1]),"report_1"]))
-#         # report=fastqc(ex,files[file][1],outdir=outdir,options=None)
-#         # add_file_fastqc(ex,report,alias="_".join(["Lib",str(files.keys()[file-1]),"report_2"]))
-#         futures=[fastqc.nonblocking(ex,f,outdir=outdir,options=None) for f in files[file]]
-#         reports=[f.wait() for f in futures]
-#         for report in reports:
-#             i=str(report)[-17:-15]
-#             add_file_fastqc(ex,report,alias="_".join(["Lib",str(files.keys()[file-1]),"report",i]))
-#
-
-with execution(M) as ex:
-    for file in files.keys():
-        print files[file]
-	print file
-        alignment=bwa(ex,files[file],"outfile")
-       	index=alignment+".bai"
-	name="_".join(["Lib",str(files.keys()[file-1]),"bwa.bam"])
-	indexname=name+".bai"
-        ex.add(alignment,alias=name)
-	ex.add(index,alias=indexname)
+#TODO : make a new task that runs the QC report generator for a set of bam files with associated fastq files
