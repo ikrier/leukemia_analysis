@@ -52,14 +52,14 @@ def fastqc(fastqfile,outdir=".",options=None):
 
 @program
 def bwa(fastqfiles,fileout):
-    return {'arguments': ["/data/alignment_temp/run_bwa_onefile.sh"]+fastqfiles+[fileout],
+    return {'arguments': ["/data/leukemia_analysis/companion_scripts/run_bwa_onefile.sh"]+fastqfiles+[fileout],
             'return_value': fileout}
 
 @program
 def cutadapt(fastqfiles,suffix,rm):
 	name1=os.path.splitext(os.path.splitext(os.path.basename(fastqfiles[0]))[0])[0]+"."+suffix+".fastq.gz"
         name2=os.path.splitext(os.path.splitext(os.path.basename(fastqfiles[1]))[0])[0]+"."+suffix+".fastq.gz"
-	return {'arguments': ["/data/alignment_temp/cutadapt.sh"]+fastqfiles+[suffix]+[rm],'return_value': [name1 , name2]}
+	return {'arguments': ["/data/leukemia_analysis/companion_scripts/cutadapt.sh"]+fastqfiles+[suffix]+[rm],'return_value': [name1 , name2]}
 
 def add_file_fastqc(execution,filename, description="", alias="None"):
     execution.add(filename,description=description,alias=alias)
@@ -89,9 +89,12 @@ def align_bwa(ex,files):
 		indexname=name+".bai"
 		alignment=bwa(ex,files[file],name)
 		index=alignment+".bai"
+		metric=alignment+".metrics"
+		metricname=name+".metrics"
 		print name
 		print indexname
 		ex.add(alignment,alias=name,description=name)
 		ex.add(index,alias=indexname,description=indexname,associate_to_filename=alignment,template="%s.bai")
+		ex.add(metric,alias=metricname,description=metricname,associate_to_filename=alignment,template="%s.metrics")
 
 #TODO : make a new task that runs the QC report generator for a set of bam files with associated fastq files

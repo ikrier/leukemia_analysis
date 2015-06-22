@@ -39,13 +39,13 @@ import sys, os, re, json, shutil, gzip, tarfile, bz2, pickle, urllib, time
 from bbcflib.common import set_file_descr
 from map_reads import *
 
-runs=range(1,3)
+runs=range(49,50)
 
 files={}
 
 for run in runs:
 	runname="_".join(["Lib",str(run)])
-	files[run] = [f for f in listdir_fullpath('/data/fastq_gwendal/') if re.match(r'.*%s_'%runname,f,re.IGNORECASE)]
+	files[run] = [f for f in listdir_fullpath('/data/testfastq/') if re.match(r'.*%s_'%runname,f,re.IGNORECASE)]
 	if "_R2_" in files[run][0]:
 		files[run]=files[run][::-1]
 	print files[run]
@@ -54,6 +54,9 @@ M=MiniLIMS("/data/leukemia_data/pipeline")
 
 suffix="adaptedtrimmed5"
 trimming=trim_adapt(M,files,suffix)
+with execution(M) as ex:
+	add_pickle(ex,trimming,description="object for trimmed files info",alias="trimming1")
+#to use it after again : use_pickle(M,"trimming1")
 
 trimmedfiles={}
 
@@ -63,5 +66,9 @@ for run in runs:
 	trimmedfiles[run]=[M.path_to_file(trimming["files"][trimname1]), M.path_to_file(trimming["files"][trimname2])]
 
 aligning=align_bwa(M,trimmedfiles)
+with execution(M) as ex:
+	add_pickle(ex,aligning,description="object for aligned files info",alias="aligned1")
+
+
 
 
