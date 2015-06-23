@@ -122,9 +122,9 @@ s.fastq1=readSeqFile(fastqfile1)
 fastqc1=s.fastq1@qual.freqs
 mysummary=function(x){c(mean(x),quantile(x,c(0.1,0.25,0.5,0.75,0.9)))}
 expand=function(x){mysummary(as.numeric(rep(colnames(fastqc1[,-1]),x)))}
-#all=apply(fastqc1[,-1],1,expand)
+all=apply(fastqc1[,-1],1,expand)
 #save(all,file="all1.RData")
-load("all1.RData")
+#load("all1.RData")
 stats1=list()
 stats1$stats=as.matrix(all[-1,])
 stats1$names=1:99
@@ -139,15 +139,15 @@ points(all[1,],type="l",col="blue")
 @
 
 <<label=fig2plot2,include=F,echo=FALSE>>=
-#s.fastq2=readSeqFile(paste(fastqdir,list.files(pattern=paste(libname,".*_R2_.*",sep=""),path = fastqdir,ignore.case = TRUE),sep=""))
+s.fastq2=readSeqFile(fastqfile2)
 #save(s.fastq2,file="s.fastq2.RData")
-load("s.fastq2.RData")
+#load("s.fastq2.RData")
 fastqc2=s.fastq2@qual.freqs
 mysummary=function(x){c(mean(x),quantile(x,c(0.1,0.25,0.5,0.75,0.9)))}
 expand=function(x){mysummary(as.numeric(rep(colnames(fastqc1[,-1]),x)))}
-#all=apply(fastqc2[,-1],1,expand)
+all=apply(fastqc2[,-1],1,expand)
 #save(all,file="all2.RData")
-load("all2.RData")
+#load("all2.RData")
 stats2=list()
 stats2$stats=as.matrix(all[-1,])
 stats2$names=1:99
@@ -249,14 +249,14 @@ GClist=as.numeric(unlist(read.table("GCoutput.txt",stringsAsFactors = F)))
 library("BSgenome.Hsapiens.UCSC.hg19")
 genome <- BSgenome.Hsapiens.UCSC.hg19
 library("rtracklayer")
-# targets=as(import.bed(regionsname),"GRanges")
-# sepintobins=function(x){
-#   t=c(seq(start(x),end(x),20),end(x))
-#   return(GRanges(seqnames = rep(seqnames(x),length(t)-1),ranges =  IRanges(start=t[-length(t)],end=t[-1]),name=rep(x$name,length(t)-1)))
-# }
-# targets=unlist(GRangesList(sapply(targets,sepintobins)))
+targets=as(import.bed(regionsname),"GRanges")
+sepintobins=function(x){
+  t=c(seq(start(x),end(x),20),end(x))
+  return(GRanges(seqnames = rep(seqnames(x),length(t)-1),ranges =  IRanges(start=t[-length(t)],end=t[-1]),name=rep(x$name,length(t)-1)))
+}
+targets=unlist(GRangesList(sapply(targets,sepintobins)))
 # save(targets,file="binnedtargets.RData")
-load("binnedtargets.RData")
+#load("binnedtargets.RData")
 #export.bed(unlist(targets),"targetsbin.bed")
 seqlevels(targets)=paste("chr",seqlevels(targets),sep="")
 targetseq=getSeq(genome,targets)
@@ -274,10 +274,10 @@ legend("topright",col=c(1,2),legend=c("Sample","Targets"),lty = 1,lwd=2,cex=0.5)
 <<label=fig42plot,include=FALSE,echo=FALSE>>=
 par(mar=c(2.5,2,0,0),oma=c(0.5,2,0,0))
 par(mgp=c(1.2,0.6,0))
-#depth=read.table(text=system(paste("coverageBed -abam",bamname,"-b targetsbin.bed -d"),intern=TRUE))
-#depth=GRanges(seqnames = paste("chr",depth$V1,sep=""),ranges = IRanges(depth$V2+depth$V7-1,depth$V2+depth$V7-1),score=depth$V8)
+depth=read.table(text=system(paste("coverageBed -abam",bamname,"-b targetsbin.bed -d"),intern=TRUE))
+depth=GRanges(seqnames = paste("chr",depth$V1,sep=""),ranges = IRanges(depth$V2+depth$V7-1,depth$V2+depth$V7-1),score=depth$V8)
 #save(depth,file="depth.RData")
-load("depth.RData")
+#load("depth.RData")
 corresp=as.matrix(findOverlaps(targets,depth,minoverlap = 1))
 scores=tapply(corresp[,2],corresp[,1],function(x){mean(depth$score[x])})
 names(scores)=as.character(unique(corresp[,1]))
@@ -346,9 +346,9 @@ print(xtable(df, caption=strCaption, label="softclip"),
 <<label=fig51plot,include=FALSE,echo=FALSE>>=
 par(mar=c(2.5,3.3,0,0),oma=c(0.5,0,0,0))
 par(mgp=c(1.2,0.6,0))
-# cov=read.table(text=system(paste("bedtools coverage -abam ",bamname," -b ",regionsname," -hist | grep ^all",sep=""),intern=T))
+cov=read.table(text=system(paste("bedtools coverage -abam ",bamname," -b ",regionsname," -hist | grep ^all",sep=""),intern=T))
 # save(cov,file="covvector.RData")
-load("covvector.RData")
+#load("covvector.RData")
 cov_cumul <- 1-cumsum(cov[,5])
 library(RColorBrewer)
 cols <- brewer.pal(3, "Dark2")
@@ -397,10 +397,10 @@ mtext(side = 2,line = 2,text = "Fraction of targeted base-pairs covered by x fra
 %%Add : proportion covered by a single type of fragment (after rmdup)
 \begin{center}
 <<label=table3,echo=FALSE,include=FALSE,results=tex>>=
-rmdupfile=paste("/data/Libs_Sophia/Lib_",libname,"_rmdups.bam",sep="")
-# table=read.table(text=system(paste("samtools view -F0x400 -b ",rmdupfile," | bedtools coverage -abam - -b ",regionsname," -hist",sep=""),intern=T),fill=T)
+rmdupfile=bamname
+table=read.table(text=system(paste("samtools view -F0x400 -b ",rmdupfile," | bedtools coverage -abam - -b ",regionsname," -hist",sep=""),intern=T),fill=T)
 # save(table,file="rmdupstatstable.RData")
-load("rmdupstatstable.RData")
+#load("rmdupstatstable.RData")
 df=data.frame(cat=c("zero","one"),numbers=table[table$V1=="all",][1:2,3],percent=table[table$V1=="all",][1:2,5])
 strCaption <- paste0("\\textbf{Statistics of coverage by 0 or 1 unique alignments} If a given position is not covered or covered only by one type of reads, it is either impossible or inaccurate to call variants there.")
 print(xtable(df, caption=strCaption, label="unique"), 
@@ -425,12 +425,12 @@ print(xtable(df, caption=strCaption, label="unique"),
 %%Add : proportion of reads within the target regions
 <<label=fig6plot,echo=FALSE,include=FALSE>>=
 par(mar=c(2.5,0,0,0),oma=c(0.5,0,0,0))
-# number_all_on_target=as.numeric(system(paste("samtools view -c",bamname,"-L",regionsname),intern=T))
-# number_uniq_on_target=as.numeric(system(paste("samtools view -F0x400 -c",rmdupfile,"-L",regionsname),intern=T))
-# proportion_all=100*c(number_all_on_target,as.numeric(picardstats$TOTAL_READS[3])-number_all_on_target)/as.numeric(picardstats$TOTAL_READS[3])
-# proportion_uniq=100*c(number_uniq_on_target,res$uniq-number_uniq_on_target)/res$uniq
+number_all_on_target=as.numeric(system(paste("samtools view -c",bamname,"-L",regionsname),intern=T))
+number_uniq_on_target=as.numeric(system(paste("samtools view -F0x400 -c",rmdupfile,"-L",regionsname),intern=T))
+proportion_all=100*c(number_all_on_target,as.numeric(picardstats$TOTAL_READS[3])-number_all_on_target)/as.numeric(picardstats$TOTAL_READS[3])
+proportion_uniq=100*c(number_uniq_on_target,res$uniq-number_uniq_on_target)/res$uniq
 # save(number_all_on_target,number_uniq_on_target,proportion_all,proportion_uniq,file="allnumsstatsdup.RData")
-load("allnumsstatsdup.RData")
+#load("allnumsstatsdup.RData")
 cols=c("cornflowerblue","lightgrey")
 barx=barplot(cbind(proportion_all,proportion_uniq),beside=F,col=cols,axes=F,names=c("All alignments","Unique alignments"),cex.names=0.7)
 pos=c(cumsum(proportion_all)-0.5*proportion_all,cumsum(proportion_uniq)-0.5*proportion_uniq)

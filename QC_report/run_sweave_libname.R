@@ -4,7 +4,7 @@ libname=args[1]
 diamtable=args[2]
 fastqfile1=args[3]
 fastqfile2=args[4]
-bamname=args[]5
+bamname=args[5]
 regionsname=args[6]
 ampliconsname=args[7]
 
