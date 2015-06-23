@@ -1,18 +1,26 @@
-setwd("/data/generate_QC_reports/temp_temp_dir/")
-costable=read.csv("cosmtable.csv",header=F)
+args <- commandArgs(trailingOnly = TRUE)
 
-fastqdir="/data/fastq_gwendal/"
-libname="49"
-cosmname=costable$V2[as.numeric(libname)]
-if(cosmname=="NONE"){cosmname="Aucun"}
+libname=args[1]
+diamtable=args[2]
+fastqfile1=args[3]
+fastqfile2=args[4]
+bamname=args[]5
+regionsname=args[6]
+ampliconsname=args[7]
 
-regionsname="../3rdDesignRegions.bed"
-ampliconsname="../15189-1405499558_Amplicons.bed"
+setwd(paste("qcreportdir",libname,sep="_"))
+
+diamtable=read.csv(diamtable,header=F)
+
+diamname=diamtable$V2[as.numeric(libname)]
+if(diamname=="NONE"){diamname="Aucun"}
+
+#For the 3rd design :
+#regionsname="../3rdDesignRegions.bed"
+#ampliconsname="../15189-1405499558_Amplicons.bed"
 #For the 2nd design : 
 # regionsname="../2ndDesignRegions.bed"
 # ampliconsname="../15189-1368439012_Amplicons.bed"
 
-reportname=paste("Report",libname,"_draft",sep="")
-
-Sweave(paste(reportname,".Rnw",sep=""))
-tools::texi2pdf(paste(reportname,".tex",sep=""))
+Sweave("QCreport.Rnw",)
+tools::texi2pdf("QCreport.tex")

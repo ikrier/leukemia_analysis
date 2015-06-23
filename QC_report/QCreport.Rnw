@@ -38,7 +38,7 @@
 
 \usepackage{wrapfig}
 
-\title{Sequencing and mapping QC for library \Sexpr{libname}, COSMIC sample \Sexpr{cosmname}}
+\title{Sequencing and mapping QC for library \Sexpr{libname}, DIAMIC sample \Sexpr{diamname}}
 \date{\today}
 \author{Irina Krier\\ UNIGE Département de Médecine
         \and Thomas Matthes\\ HUG Cytométrie}
@@ -52,8 +52,7 @@
 \section{Summary statistics}
 
 \begin{center}
-<<label=table1, results=tex, echo=FALSE,width=8,height=4>>=
-bamname=paste("/data/Libs_Sophia/Lib_",libname,".bam",sep="")
+<<label=table1, results=tex, echo=FALSE,width=8,height=4>>=$
 
 #Here I have to put the command to actually run the thing which is :
 #java -jar /data/software/picard/dist/picard.jar CollectAlignmentSummaryMetrics R=/data/genomes/hg19.bwa/hg19.fa I=/data/alignment_temp/Lib_1_bwamem_0.7.12.srt.bam O=picard_alignmentstats_lib1.txt
@@ -117,9 +116,9 @@ text(pos,2/3,c(paste(format(100-100*res$dups,digits=2),"% unique"),paste(format(
 
 <<label=fig2plot1,include=F,echo=FALSE>>=
 library("qrqc")
-#s.fastq1=readSeqFile(paste(fastqdir,list.files(pattern=paste(libname,".*_R1_.*",sep=""),path = fastqdir,ignore.case = TRUE),sep=""))
+s.fastq1=readSeqFile(fastqfile1)
 #save(s.fastq1,file="s.fastq1.RData")
-load("s.fastq1.RData")
+#load("s.fastq1.RData")
 fastqc1=s.fastq1@qual.freqs
 mysummary=function(x){c(mean(x),quantile(x,c(0.1,0.25,0.5,0.75,0.9)))}
 expand=function(x){mysummary(as.numeric(rep(colnames(fastqc1[,-1]),x)))}
