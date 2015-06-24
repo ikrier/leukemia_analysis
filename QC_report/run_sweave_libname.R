@@ -1,16 +1,22 @@
 args <- commandArgs(trailingOnly = TRUE)
 
 libname=args[1]
-diamtable=args[2]
+diamtablename=args[2]
 fastqfile1=args[3]
 fastqfile2=args[4]
 bamname=args[5]
 regionsname=args[6]
 ampliconsname=args[7]
 
+for(i in 1:7)
+{
+  cat(args[i],"\n")
+}
+
+system(command = paste("mkdir qcreportdir",libname,sep="_"))
 setwd(paste("qcreportdir",libname,sep="_"))
 
-diamtable=read.csv(diamtable,header=F)
+diamtable=read.csv(diamtablename,header=F)
 
 diamname=diamtable$V2[as.numeric(libname)]
 if(diamname=="NONE"){diamname="Aucun"}
@@ -22,5 +28,5 @@ if(diamname=="NONE"){diamname="Aucun"}
 # regionsname="../2ndDesignRegions.bed"
 # ampliconsname="../15189-1368439012_Amplicons.bed"
 
-Sweave("QCreport.Rnw",)
+Sweave("/data/leukemia_analysis/QC_report/QCreport.Rnw",)
 tools::texi2pdf("QCreport.tex")

@@ -55,8 +55,8 @@
 <<label=table1, results=tex, echo=FALSE,width=8,height=4>>=$
 
 #Here I have to put the command to actually run the thing which is :
-#java -jar /data/software/picard/dist/picard.jar CollectAlignmentSummaryMetrics R=/data/genomes/hg19.bwa/hg19.fa I=/data/alignment_temp/Lib_1_bwamem_0.7.12.srt.bam O=picard_alignmentstats_lib1.txt
-picardstats=read.table("report_49.txt",fill=T,header=1)
+system(command=paste("java -jar /data/software/picard/dist/picard.jar CollectAlignmentSummaryMetrics R=/data/genomes/Broadhs37/hs37d5.fa I=",bamname," O=report_",libname,".txt",sep=""))
+picardstats=read.table(paste("report_",libname,".txt",sep=""),fill=T,header=1)
 library(xtable)
 df=data.frame(cat=as.character(picardstats$CATEGORY),
               Seqnb=format(picardstats$TOTAL_READS,big.mark = "'"),
@@ -87,7 +87,7 @@ print(xtable(df, digits=2, caption=strCaption, label="StatsTable"),
 par(oma=c(0,0,0,0))
 par(mar=c(1,1,0,1))
 #Include the dupstats when creating the bam file?
-picardstats2=as.data.frame(read.table("/data/Libs_Sophia/Lib_49_dupstats.txt",fill=T,header=1,stringsAsFactors = F)[2,])
+picardstats2=as.data.frame(read.table(paste(bamname,".metrics",sep=""),fill=T,header=1,stringsAsFactors = F,sep = "\t")[1,])
 res=numeric()
 res$dups=picardstats2$PERCENT_DUPLICATION
 res$uniq=picardstats2$UNPAIRED_READS_EXAMINED+picardstats2$READ_PAIRS_EXAMINED*2-as.numeric(picardstats2$READ_PAIR_DUPLICATES)*2-picardstats2$UNPAIRED_READ_DUPLICATES
@@ -127,7 +127,7 @@ all=apply(fastqc1[,-1],1,expand)
 #load("all1.RData")
 stats1=list()
 stats1$stats=as.matrix(all[-1,])
-stats1$names=1:99
+stats1$names=1:dim(stats1$stats)[2]
 par(mar=c(2.5,3,0,0),oma=c(0.5,0,0,0))
 par(mgp=c(1.2,0.6,0))
 bxp(stats1,ylim=c(0,max(stats1$stats)),axes=F)
@@ -150,7 +150,7 @@ all=apply(fastqc2[,-1],1,expand)
 #load("all2.RData")
 stats2=list()
 stats2$stats=as.matrix(all[-1,])
-stats2$names=1:99
+stats2$names=1:dim(stats2$stats)[2]
 par(mar=c(2.5,3,0,0),oma=c(0.5,0,0,0))
 par(mgp=c(1.2,0.6,0))
 bxp(stats2,ylim=c(0,max(stats2$stats)),axes=F)
@@ -244,8 +244,8 @@ legend("topright",lty=1,lwd=2,col=colors,legend=c("A","C","G","T"),cex=0.7)
 <<label=fig41plot,include=FALSE,echo=FALSE>>=
 par(mar=c(2.5,1,0,0),oma=c(0.5,1,0,0))
 par(mgp=c(1.2,0.6,0))
-#GClist=as.numeric(unlist(read.table(text=system(paste("samtools view -s 2.01 /data/Libs_Sophia/Lib_",libname,".bam |awk '{ n=length($10); print  gsub(/[GCgc]/,t,$10)/n;}'",sep=""),intern=T),stringsAsFactors = F)))
-GClist=as.numeric(unlist(read.table("GCoutput.txt",stringsAsFactors = F)))
+GClist=as.numeric(unlist(read.table(text=system(paste("samtools view -s 2.01 ",bamname," |awk '{ n=length($10); print  gsub(/[GCgc]/,t,$10)/n;}'",sep=""),intern=T),stringsAsFactors = F)))
+#GClist=as.numeric(unlist(read.table("GCoutput.txt",stringsAsFactors = F)))
 library("BSgenome.Hsapiens.UCSC.hg19")
 genome <- BSgenome.Hsapiens.UCSC.hg19
 library("rtracklayer")
@@ -257,7 +257,7 @@ sepintobins=function(x){
 targets=unlist(GRangesList(sapply(targets,sepintobins)))
 # save(targets,file="binnedtargets.RData")
 #load("binnedtargets.RData")
-#export.bed(unlist(targets),"targetsbin.bed")
+export.bed(unlist(targets),"targetsbin.bed")
 seqlevels(targets)=paste("chr",seqlevels(targets),sep="")
 targetseq=getSeq(genome,targets)
 freq=alphabetFrequency(targetseq)[,1:4]
@@ -308,21 +308,29 @@ mtext("Mean depth",2,2,cex=0.6)
 
 \begin{center}
 <<label=table2,echo=FALSE,results=tex>>=
-clippedstartfwd=read.table(text=system(paste("samtools view -F 0x10",bamname,"|cut -f6|perl -ne \'{/^(\\d+)S/ && print \"$1\\n\"}\' |sort|uniq -c"),intern = T),header = F,as.is = TRUE)
+clippedstartfwd=NULL
+text=system(paste("samtools view -F 0x10",bamname,"|cut -f6|perl -ne \'{/^(\\d+)S/ && print \"$1\\n\"}\' |sort|uniq -c"),intern = T)
+if(length(text)!=0){clippedstartfwd=read.table(text=text,header = F,as.is = TRUE)}
 clippedstartfwd=c(rep(clippedstartfwd$V2,clippedstartfwd$V1))
-clippedstartrev=read.table(text=system(paste("samtools view -f 0x10",bamname,"|cut -f6|perl -ne \'{/^(\\d+)S/ && print \"$1\\n\"}\' |sort|uniq -c"),intern=T),header = F,as.is = TRUE)
+clippedstartrev=NULL
+text=system(paste("samtools view -f 0x10",bamname,"|cut -f6|perl -ne \'{/^(\\d+)S/ && print \"$1\\n\"}\' |sort|uniq -c"),intern=T)
+if(length(text)!=0){clippedstartrev=read.table(text=text,header = F,as.is = TRUE)}
 clippedstartrev=c(rep(clippedstartrev$V2,clippedstartrev$V1))
-clippedendfwd=read.table(text=system(paste("samtools view -F 0x10",bamname,"|cut -f6|perl -ne \'{/.*\\D(\\d+)S$/ && print \"$1\\n\"}\' |sort|uniq -c"),intern = T),header = F,as.is = TRUE)
+clippedendfwd=NULL
+text=system(paste("samtools view -F 0x10",bamname,"|cut -f6|perl -ne \'{/.*\\D(\\d+)S$/ && print \"$1\\n\"}\' |sort|uniq -c"),intern = T)
+if(length(text)!=0){clippedendfwd=read.table(text=text,header = F,as.is = TRUE)}
 clippedendfwd=c(rep(clippedendfwd$V2,clippedendfwd$V1))
-clippedendrev=read.table(text=system(paste("samtools view -f 0x10",bamname,"|cut -f6|perl -ne \'{/.*\\D(\\d+)S$/ && print \"$1\\n\"}\' |sort|uniq -c"),intern = T),header = F,as.is = TRUE)
+clippedendrev=NULL
+text=system(paste("samtools view -f 0x10",bamname,"|cut -f6|perl -ne \'{/.*\\D(\\d+)S$/ && print \"$1\\n\"}\' |sort|uniq -c"),intern = T)
+if(length(text)!=0){clippedendrev=read.table(text=text,header = F,as.is = TRUE)}
 clippedendrev=c(rep(clippedendrev$V2,clippedendrev$V1))
 df=data.frame(cat=c("Start forward","End reverse","End forward","Start reverse"),
               prop=format(c(100*length(clippedstartfwd)/picardstats$PF_READS_ALIGNED[3],
                      100*length(clippedendrev)/picardstats$PF_READS_ALIGNED[3],
                      100*length(clippedendfwd)/picardstats$PF_READS_ALIGNED[3],
                      100*length(clippedstartrev)/picardstats$PF_READS_ALIGNED[3]),style="scientific",digits=2),
-              median=format(c(median(clippedstartfwd),median(clippedendrev),median(clippedendfwd),median(clippedstartrev)),digits=0),
-              max=c(c(max(clippedstartfwd),max(clippedendrev),max(clippedendfwd),max(clippedstartrev)))
+              median=format(c(median(c(0,clippedstartfwd),na.rm=T),median(c(0,clippedendrev),na.rm=T),median(c(0,clippedendfwd),na.rm=T),median(c(0,clippedstartrev),na.rm=T)),digits=0),
+              max=c(c(max(c(0,clippedstartfwd),na.rm=T),max(c(0,clippedendrev),na.rm=T),max(c(0,clippedendfwd),na.rm=T),max(c(0,clippedstartrev),na.rm=T)))
               )
 strCaption <- paste0("\\textbf{Soft-clipping statistics} Soft-clipping permits the use of only a fraction of a given read for alignment, for example if the beginning or the end does not align (e.g. in the case of adaptor residuals or genome rearrangements).")
 print(xtable(df, caption=strCaption, label="softclip"), 
