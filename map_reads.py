@@ -110,3 +110,9 @@ def align_bwa(ex,files):
 		ex.add(metric,alias=metricname,description=metricname,associate_to_filename=alignment,template="%s.metrics")
 
 #TODO : make a new task that runs the QC report generator for a set of bam files with associated fastq files
+
+@task
+def run_qc_report(ex,fastqfiles,bamfiles):
+	for file in fastqfiles.keys():
+		print fastqfiles[file]
+		print bamfiles[file]
