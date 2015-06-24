@@ -523,7 +523,7 @@ for(name in names(list_gene_ranges))
 \section{Individual targeted region coverage}
 
 <<label=covtable,results=tex,echo=FALSE>>=
-source("plot_cumul_cov.R")
+source("/data/leukemia_analysis/QC_report/plot_cumul_cov.R")
 coveragetargets=read.table(text=system(paste("bedtools coverage -abam ",bamname," -b ",regionsname," -hist | grep -v ^all",sep=""),intern=T))
 coveragetargetsuniq=read.table(text=system(paste("samtools view -F0x400 -b ",rmdupfile," | bedtools coverage -abam - -b ",regionsname," -hist | grep -v ^all",sep=""),intern=T))
 coveragetargets$index=paste("chr",coveragetargets$V1,":",coveragetargets$V2,"-",coveragetargets$V3," ",coveragetargets$V4,sep="")
@@ -591,7 +591,7 @@ for(name in  unique(targets$name))
 
 
 <<label=plotgenesall,results=tex,echo=FALSE>>=
-source("plot_gene_profile.R")
+source("/data/leukemia_analysis/QC_report/plot_gene_profile.R")
 for(name in names(list_gene_ranges))
 {
   graphfile=paste(name,".pdf", sep="")
