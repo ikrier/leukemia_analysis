@@ -47,7 +47,7 @@ library(BSgenome.Hsapiens.UCSC.hg19)
 options(ucscChromosomeNames=FALSE)
 lengths=seqlengths(Hsapiens)
 names(lengths)=sapply(names(lengths),function(x){substr(x,start = 4,stop = nchar(x))})
-source("strandedBamImport.R")
+source("/data/leukemia_analysis/QC_report/strandedBamImport.R")
 granges=strandedBamImport(bamname,range)
 granges2=granges
 granges2$both=NULL
