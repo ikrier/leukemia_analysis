@@ -69,6 +69,11 @@ aligning=align_bwa(M,trimmedfiles)
 with execution(M) as ex:
 	add_pickle(ex,aligning,description="object for aligned files info",alias="aligned1")
 
+bamfiles={}
 
+for run in runs:
+	bamfiles[run]="Lib_"+str(run)+"_bwa.bam"
 
-
+qcreporting=qcreport(M,trimmedfiles,bamfiles)
+with(execution(M) as ex:
+	add_pickle(ex,qcreporting,description="object for qc reporting files info",alias="qcreporting1")

@@ -61,6 +61,18 @@ def cutadapt(fastqfiles,suffix,rm):
         name2=os.path.splitext(os.path.splitext(os.path.basename(fastqfiles[1]))[0])[0]+"."+suffix+".fastq.gz"
 	return {'arguments': ["/data/leukemia_analysis/companion_scripts/cutadapt.sh"]+fastqfiles+[suffix]+[rm],'return_value': [name1 , name2]}
 
+@program
+def qcreport(libname,fastqfiles,bamfile):
+	diamictable="data/leukemia_analysis/diamtable.csv"
+	if(float(libname)<48):
+		targets="/data/generate_QC_reports/2ndDesignRegions.bed"
+		amplicons="/data/generate_QC_reports/15189-1368439012_Amplicons.bed"
+	else:
+		targets="/data/generate_QC_reports/3rdDesignRegions.bed"
+		amplicons="/data/generate_QC_reports/15189-1405499558_Amplicons.bed"
+	outfile="qcreport_"+libname+"/QCreport.pdf"
+	return {'arguments': ["Rscript","/data/leukemia_analysis/QCreport/run_sweave_libname.R"]+[libname]+[diamictable]+fastqfiles+[bamfile]+[targets,amplicons], 'return_value': outfile}
+
 def add_file_fastqc(execution,filename, description="", alias="None"):
     execution.add(filename,description=description,alias=alias)
 
