@@ -16,8 +16,10 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Attributions : the present code was copied partially from  :  https://support.bioconductor.org/p/56047/ 
+# code by Florian Hahne
 
-strandedBamImport <- function (file, selection)
+strandedBamImport <- function (file, selection,keepduplicates)
 {
   if (!file.exists(paste(file, "bai", sep = ".")))
     stop("Unable to find index for BAM file '", file, "'. You can
@@ -32,7 +34,7 @@ strandedBamImport <- function (file, selection)
   }else
   {
     param <- ScanBamParam(what = c("pos", "qwidth", "strand"),
-                          which = selection, flag = scanBamFlag(isUnmappedQuery = FALSE, isDuplicate=FALSE))
+                          which = selection, flag = scanBamFlag(isUnmappedQuery = FALSE, isDuplicate=keepduplicates))
     x <- scanBam(file, param = param)[[1]]
     if(length(x$pos)==0)
     {

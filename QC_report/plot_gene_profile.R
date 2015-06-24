@@ -41,6 +41,7 @@ biomTrack <- BiomartGeneRegionTrack(genome = "hg19", biomart = ensembl67,
 cosmic=read.table("/data/leukemia_analysis/QC_report/COSMIC_Haematopoietic_and_lymphoid_tissue.gz",skip=1,header=T,sep="\t")
 cosmic=GRanges(seqnames = cosmic$chromosome,ranges = IRanges(start=cosmic$grch37_start,end=cosmic$grch37_stop),
                strand="*",name=cosmic$mut_syntax_aa)
+amplicons=import.bed(amplicons)
 options(ucscChromosomeNames=FALSE)
 cosmicTrack=AnnotationTrack(cosmic,name = "COSMIC Haematopoietic",stacking = "dense")
 library(BSgenome.Hsapiens.UCSC.hg19)
@@ -48,11 +49,11 @@ options(ucscChromosomeNames=FALSE)
 lengths=seqlengths(Hsapiens)
 names(lengths)=sapply(names(lengths),function(x){substr(x,start = 4,stop = nchar(x))})
 source("/data/leukemia_analysis/QC_report/strandedBamImport.R")
-granges=strandedBamImport(bamname,range)
+granges=strandedBamImport(bamname,range,NA)
 granges2=granges
 granges2$both=NULL
 rm(granges)
-grangesu=strandedBamImport(rmdupfile,range)
+grangesu=strandedBamImport(rmdupfile,range,FALSE)
 granges2u=grangesu
 granges2u$both=NULL
 rm(grangesu)
@@ -61,7 +62,7 @@ dTrackGrange2=DataTrack(granges2,ylim=c(-17500,17500),name="Stranded coverage")
 dTrackGrange2u=DataTrack(granges2u,ylim=c(-50,50),name="Unique coverage")
 dTrackns <- DataTrack(range=bamname, genome="hg19", name="Total coverage",
                       window=-1, chromosome=seqnames(range),
-                      stream=TRUE,ylim=c(0,35000))
+                      stream=TRUE,ylim=c(0,35000),importFunction = import.bam)
 displayPars(dTrackGrange2)$groups=c("+","-")
 displayPars(dTrackGrange2)$col= c("#0099FF","#FF33CC")
 displayPars(dTrackGrange2u)$groups=c("+","-")
