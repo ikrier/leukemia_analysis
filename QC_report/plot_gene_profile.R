@@ -49,6 +49,7 @@ options(ucscChromosomeNames=FALSE)
 lengths=seqlengths(Hsapiens)
 names(lengths)=sapply(names(lengths),function(x){substr(x,start = 4,stop = nchar(x))})
 source("/data/leukemia_analysis/QC_report/strandedBamImport.R")
+source("/data/leukemia_analysis/QC_report/import.bam.R")
 granges=strandedBamImport(bamname,range,NA)
 granges2=granges
 granges2$both=NULL
@@ -70,7 +71,7 @@ displayPars(dTrackGrange2u)$col= c("#0099FF","#FF33CC")
 targetsTrack=AnnotationTrack(targets,name="Targets")
 displayPars(targetsTrack)$fill= "grey"
 displayPars(targetsTrack)$col= "grey"
-ampliconsTrack=AnnotationTrack(amplicons,stacking = "squish",name="Ampli- cons")
+ampliconsTrack=AnnotationTrack(amplicons,stacking = "dense",name="Ampli- cons")
 strand(ampliconsTrack)="*"
 plotTracks(list(gtrack,dTrackns,dTrackGrange2,dTrackGrange2u,cosmicTrack,biomTrack,targetsTrack,ampliconsTrack),
            from =start(range), to = end(range),chromosome=seqnames(range),
