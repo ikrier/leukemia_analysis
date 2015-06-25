@@ -71,7 +71,7 @@ def qcreport(libname,fastqfiles,bamfile):
 		targets="/data/generate_QC_reports/3rdDesignRegions.bed"
 		amplicons="/data/generate_QC_reports/15189-1405499558_Amplicons.bed"
 	libname=str(libname)
-	outfile="qcreport_"+libname+"/QCreport.pdf"
+	outfile="QCreport_"+libname+".pdf"
 	return {'arguments': ["Rscript","/data/leukemia_analysis/QC_report/run_sweave_libname.R"]+[libname]+[diamictable]+fastqfiles+bamfile+[targets]+[amplicons], 'return_value': outfile}
 
 def add_file_fastqc(execution,filename, description="", alias="None"):
@@ -116,5 +116,7 @@ def run_qc_report(ex,fastqfiles,bamfiles):
 		print fastqfiles[file]
 		print bamfiles[file]
 		report=qcreport(ex,file,fastqfiles[file],bamfiles[file])
+		reportname="QCreport_"+file+".pdf"
+		ex.add(reportname,alname,alias=reportname,description="QC report for "+file)
 
 
