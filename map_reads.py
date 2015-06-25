@@ -63,15 +63,16 @@ def cutadapt(fastqfiles,suffix,rm):
 
 @program
 def qcreport(libname,fastqfiles,bamfile):
-	diamictable="data/leukemia_analysis/diamtable.csv"
+	diamictable="/data/leukemia_analysis/diamtable.csv"
 	if(float(libname)<48):
 		targets="/data/generate_QC_reports/2ndDesignRegions.bed"
 		amplicons="/data/generate_QC_reports/15189-1368439012_Amplicons.bed"
 	else:
 		targets="/data/generate_QC_reports/3rdDesignRegions.bed"
 		amplicons="/data/generate_QC_reports/15189-1405499558_Amplicons.bed"
+	libname=str(libname)
 	outfile="qcreport_"+libname+"/QCreport.pdf"
-	return {'arguments': ["Rscript","/data/leukemia_analysis/QCreport/run_sweave_libname.R"]+[libname]+[diamictable]+fastqfiles+[bamfile]+[targets,amplicons], 'return_value': outfile}
+	return {'arguments': ["Rscript","/data/leukemia_analysis/QC_report/run_sweave_libname.R"]+[libname]+[diamictable]+fastqfiles+bamfile+[targets]+[amplicons], 'return_value': outfile}
 
 def add_file_fastqc(execution,filename, description="", alias="None"):
     execution.add(filename,description=description,alias=alias)
@@ -109,10 +110,11 @@ def align_bwa(ex,files):
 		ex.add(index,alias=indexname,description=indexname,associate_to_filename=alignment,template="%s.bai")
 		ex.add(metric,alias=metricname,description=metricname,associate_to_filename=alignment,template="%s.metrics")
 
-#TODO : make a new task that runs the QC report generator for a set of bam files with associated fastq files
-
 @task
 def run_qc_report(ex,fastqfiles,bamfiles):
 	for file in fastqfiles.keys():
 		print fastqfiles[file]
 		print bamfiles[file]
+		report=qcreport(ex,file,fastqfiles[file],bamfiles[file])
+
+

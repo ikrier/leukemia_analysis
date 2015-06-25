@@ -72,7 +72,7 @@ with execution(M) as ex:
 bamfiles={}
 
 for run in runs:
-	bamfiles[run]="Lib_"+str(run)+"_bwa.bam"
+	bamfiles[run]=[M.path_to_file(aligning["files"]["Lib_"+str(run)+"_bwa.bam"])]
 
 qcreporting=qcreport(M,trimmedfiles,bamfiles)
 with(execution(M) as ex:
