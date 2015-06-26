@@ -63,7 +63,7 @@ df=data.frame(cat=as.character(picardstats$CATEGORY),
               Aligned=format(picardstats$PF_READS_ALIGNED,big.mark = "'"),
               percentalign=picardstats$PCT_PF_READS_ALIGNED*100,
               percentnomate=100-100*picardstats$PCT_READS_ALIGNED_IN_PAIRS)
-strCaption <- paste0("\\textbf{Sequencing and alignment statistics} Actuellement les statistiques ne sont pas correctes, car Sophia a omis les fragments qui ne s'alignaient pas de ce fichier.")
+strCaption <- paste0("\\textbf{Sequencing and alignment statistics} Alignment of >90% of sequences indicates a high quality library.")
 print(xtable(df, digits=2, caption=strCaption, label="StatsTable"), 
       size="footnotesize", #Change size; useful for bigger tables
       include.rownames=FALSE, #Don't print rownames
@@ -234,7 +234,7 @@ legend("topright",lty=1,lwd=2,col=colors,legend=c("A","C","G","T"),cex=0.7)
 <<fig3plot2>>
 @
 }
-\caption{\textbf{Proportion of nucleotide per position} The present statistic is computed on the original files, without trimming. There are therefore potentially still adapters and all restriction sites are not trimmed.}
+\caption{\textbf{Proportion of nucleotide per position} Files have been cleaned of Illumina adapters and trimmed by removing the first 5 base-pairs of each read to remove the restriction enzyme recognition sequence conservatively on all reads.}
 \end{center}
 \end{wrapfigure}
 
@@ -470,7 +470,7 @@ p + theme(legend.key.size =  unit(0.15, "in")) + theme(legend.text = element_tex
 <<label=fig7,fig=TRUE,echo=FALSE,include=TRUE,height=6,width=7>>=
 <<fig7plot>>
 @
-\caption{\textbf{Representation of k-mers per position, Read 1} We can see in pink some suspect over-represented homopolymers from base 30}
+\caption{\textbf{Representation of k-mers per position, Read 1} Possible over-represented sequences would indicate either biases in the assay or improper cleaning of adapters.}
 \end{center}
 \end{wrapfigure}
 
@@ -488,7 +488,7 @@ p + theme(legend.key.size =  unit(0.15, "in")) + theme(legend.text = element_tex
 <<label=fig8,fig=TRUE,echo=FALSE,include=TRUE,height=6,width=7>>=
 <<fig8plot>>
 @
-\caption{\textbf{Representation of k-mers per position, Read 2} We can see in pink some suspect over-represented homopolymers from base 60}
+\caption{\textbf{Representation of k-mers per position, Read 2} Possible over-represented sequences would indicate either biases in the assay or improper cleaning of adapters.}
 \end{center}
 \end{wrapfigure}
 
