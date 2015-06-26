@@ -74,6 +74,6 @@ bamfiles={}
 for run in runs:
 	bamfiles[run]=[M.path_to_file(aligning["files"]["Lib_"+str(run)+"_bwa.bam"])]
 
-qcreporting=qcreport(M,trimmedfiles,bamfiles)
+qcreporting=run_qc_report(M,trimmedfiles,bamfiles)
 with execution(M) as ex:
 	add_pickle(ex,qcreporting,description="object for qc reporting files info",alias="qcreporting1")
