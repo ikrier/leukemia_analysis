@@ -89,10 +89,10 @@ par(mar=c(1,1,0,1))
 #Include the dupstats when creating the bam file?
 picardstats2=as.data.frame(read.table(paste(bamname,".metrics",sep=""),fill=T,header=1,stringsAsFactors = F,sep = "\t")[1,])
 res=numeric()
-res$dups=picardstats2$PERCENT_DUPLICATION
-res$uniq=picardstats2$UNPAIRED_READS_EXAMINED+picardstats2$READ_PAIRS_EXAMINED*2-as.numeric(picardstats2$READ_PAIR_DUPLICATES)*2-picardstats2$UNPAIRED_READ_DUPLICATES
-res$dupnum=as.numeric(picardstats2$READ_PAIR_DUPLICATES)*2+picardstats2$UNPAIRED_READ_DUPLICATES
-res$total=picardstats2$UNPAIRED_READS_EXAMINED+picardstats2$READ_PAIRS_EXAMINED*2
+res$dups=as.numeric(picardstats2$PERCENT_DUPLICATION)
+res$uniq=as.numeric(picardstats2$UNPAIRED_READS_EXAMINED)+as.numeric(picardstats2$READ_PAIRS_EXAMINED)*2-as.numeric(picardstats2$READ_PAIR_DUPLICATES)*2-as.numeric(picardstats2$UNPAIRED_READ_DUPLICATES)
+res$dupnum=as.numeric(picardstats2$READ_PAIR_DUPLICATES)*2+as.numeric(picardstats2$UNPAIRED_READ_DUPLICATES)
+res$total=as.numeric(picardstats2$UNPAIRED_READS_EXAMINED)+as.numeric(picardstats2$READ_PAIRS_EXAMINED*2)
 data=rbind(res$uniq,res$dupnum)
 ticks=seq(0,1e4*ceiling(res$total/1e4),1e4)
 ticks=pretty(ticks)
