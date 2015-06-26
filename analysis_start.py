@@ -39,13 +39,13 @@ import sys, os, re, json, shutil, gzip, tarfile, bz2, pickle, urllib, time
 from bbcflib.common import set_file_descr
 from map_reads import *
 
-runs=range(49,50)
+runs=range(1,6)
 
 files={}
 
 for run in runs:
 	runname="_".join(["Lib",str(run)])
-	files[run] = [f for f in listdir_fullpath('/data/testfastq/') if re.match(r'.*%s_'%runname,f,re.IGNORECASE)]
+	files[run] = [f for f in listdir_fullpath('/data/fastq_gwendal/') if re.match(r'.*%s_'%runname,f,re.IGNORECASE)]
 	if "_R2_" in files[run][0]:
 		files[run]=files[run][::-1]
 	print files[run]
@@ -75,5 +75,5 @@ for run in runs:
 	bamfiles[run]=[M.path_to_file(aligning["files"]["Lib_"+str(run)+"_bwa.bam"])]
 
 qcreporting=qcreport(M,trimmedfiles,bamfiles)
-with(execution(M) as ex:
+with execution(M) as ex:
 	add_pickle(ex,qcreporting,description="object for qc reporting files info",alias="qcreporting1")
