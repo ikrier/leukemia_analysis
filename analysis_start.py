@@ -55,7 +55,7 @@ M=MiniLIMS("/data/leukemia_data/leukemia_pipeline")
 suffix="adaptedtrimmed5"
 trimming=trim_adapt(M,files,suffix)
 with execution(M) as ex:
-	add_pickle(ex,trimming,description="object for trimmed files info",alias="trimming1")
+	add_pickle(ex,trimming,description="object for trimmed files info",alias="trimming2")
 #to use it after again : use_pickle(M,"trimming1")
 
 trimmedfiles={}
@@ -67,7 +67,7 @@ for run in runs:
 
 aligning=align_bwa(M,trimmedfiles)
 with execution(M) as ex:
-	add_pickle(ex,aligning,description="object for aligned files info",alias="aligned1")
+	add_pickle(ex,aligning,description="object for aligned files info",alias="aligned2")
 
 bamfiles={}
 
@@ -76,4 +76,4 @@ for run in runs:
 
 qcreporting=run_qc_report(M,trimmedfiles,bamfiles)
 with execution(M) as ex:
-	add_pickle(ex,qcreporting,description="object for qc reporting files info",alias="qcreporting1")
+	add_pickle(ex,qcreporting,description="object for qc reporting files info",alias="qcreporting2")

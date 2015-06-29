@@ -27,7 +27,7 @@ This program is free software: you can redistribute it and/or modify
 
 
 filein="all_merged.vcf.gz"
-fileout="all_merged.flt.vcf"
+fileout="all_merged.flt_no10percentfilter.vcf"
 
 vcf_reader=vcf.Reader(open(filein,"r"))
 		
@@ -48,7 +48,7 @@ for record in vcf_reader:
 			AF=map(float,sample.data.AD)[1]/sum(map(float,sample.data.AD))
 			if AF>maxAF:
 				maxAF=AF
-	if float(db.get("g1000",0))<0.05 and float(db.get("cg69",0))<0.05 and maxAF>0.1 and not record.FILTER :
+	if float(db.get("g1000",0))<0.05 and float(db.get("cg69",0))<0.05 and not record.FILTER :
 		vcf_writer.write_record(record)
 	
 vcf.Writer.close(vcf_writer)
