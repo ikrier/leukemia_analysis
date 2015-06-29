@@ -63,7 +63,7 @@ df=data.frame(cat=as.character(picardstats$CATEGORY),
               Aligned=format(picardstats$PF_READS_ALIGNED,big.mark = "'"),
               percentalign=picardstats$PCT_PF_READS_ALIGNED*100,
               percentnomate=100-100*picardstats$PCT_READS_ALIGNED_IN_PAIRS)
-strCaption <- paste0("\\textbf{Sequencing and alignment statistics} Alignment of >90% of sequences indicates a high quality library.")
+strCaption <- paste0("\\textbf{Sequencing and alignment statistics} Alignment of >90\\% of sequences indicates a high quality library.")
 print(xtable(df, digits=2, caption=strCaption, label="StatsTable"), 
       size="footnotesize", #Change size; useful for bigger tables
       include.rownames=FALSE, #Don't print rownames
@@ -93,13 +93,13 @@ res$dups=as.numeric(picardstats2$PERCENT_DUPLICATION)
 res$uniq=as.numeric(picardstats2$UNPAIRED_READS_EXAMINED)+as.numeric(picardstats2$READ_PAIRS_EXAMINED)*2-as.numeric(picardstats2$READ_PAIR_DUPLICATES)*2-as.numeric(picardstats2$UNPAIRED_READ_DUPLICATES)
 res$dupnum=as.numeric(picardstats2$READ_PAIR_DUPLICATES)*2+as.numeric(picardstats2$UNPAIRED_READ_DUPLICATES)
 res$total=as.numeric(picardstats2$UNPAIRED_READS_EXAMINED)+as.numeric(picardstats2$READ_PAIRS_EXAMINED*2)
-data=rbind(res$uniq,res$dupnum)
+mydata=rbind(res$uniq,res$dupnum)
 ticks=seq(0,1e4*ceiling(res$total/1e4),1e4)
 ticks=pretty(ticks)
 labels=format(ticks, big.mark=",", scientific=FALSE)
 barplot(rbind(res$uniq,res$dupnum),beside =F,width = 1,las=1,horiz=T,col=c("cornflowerblue","lightgrey"),axes =F,xlim=c(0,max(ticks)))
 axis(1,at=ticks,labels = labels,mgp=c(3,0.1,0),tck=-0.25,cex.axis=0.6)
-pos=cumsum(data)-0.5*data
+pos=cumsum(mydata)-0.5*mydata
 pos=c(0,pos[2])
 text(pos,2/3,c(paste(format(100-100*res$dups,digits=2),"% unique"),paste(format(100*res$dups,digits = 4),"% duplicates")),cex=0.58,pos = 4)
 @
@@ -409,7 +409,7 @@ rmdupfile=bamname
 table=read.table(text=system(paste("samtools view -F0x400 -b ",rmdupfile," | bedtools coverage -abam - -b ",regionsname," -hist",sep=""),intern=T),fill=T)
 # save(table,file="rmdupstatstable.RData")
 #load("rmdupstatstable.RData")
-df=data.frame(cat=c("zero","one"),numbers=table[table$V1=="all",][1:2,3],percent=table[table$V1=="all",][1:2,5])
+df=data.frame(cat=c("zero","one"),numbers=table[table$V1=="all",][1:2,3],percent=100*table[table$V1=="all",][1:2,5])
 strCaption <- paste0("\\textbf{Statistics of coverage by 0 or 1 unique alignments} If a given position is not covered or covered only by one type of reads, it is either impossible or inaccurate to call variants there.")
 print(xtable(df, caption=strCaption, label="unique"), 
       size="footnotesize", #Change size; useful for bigger tables
@@ -564,6 +564,8 @@ for(name in  unique(targets$name))
     }
 }
 @
+
+
 % \begin{table}[ht]
 % \centering
 % \caption{Table de couverture des régions ciblées de PHF6} 

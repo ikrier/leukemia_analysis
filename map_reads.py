@@ -116,7 +116,7 @@ def run_qc_report(ex,fastqfiles,bamfiles):
 		print fastqfiles[file]
 		print bamfiles[file]
 		report=qcreport(ex,file,fastqfiles[file],bamfiles[file])
-		reportname="QCreport_"+str(file)+".pdf"
+		reportname="QCreport_Lib"+str(file)+".pdf"
 		ex.add(reportname,alias=reportname,description="QC report for "+str(file))
 
 

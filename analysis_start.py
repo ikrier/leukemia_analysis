@@ -39,7 +39,7 @@ import sys, os, re, json, shutil, gzip, tarfile, bz2, pickle, urllib, time
 from bbcflib.common import set_file_descr
 from map_reads import *
 
-runs=range(1,6)
+runs=range(6,11)
 
 files={}
 
@@ -50,7 +50,7 @@ for run in runs:
 		files[run]=files[run][::-1]
 	print files[run]
 
-M=MiniLIMS("/data/leukemia_data/bamfiles")
+M=MiniLIMS("/data/leukemia_data/leukemia_pipeline")
 
 suffix="adaptedtrimmed5"
 trimming=trim_adapt(M,files,suffix)

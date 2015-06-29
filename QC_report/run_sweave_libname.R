@@ -31,4 +31,4 @@ if(diamname=="NONE"){diamname="Aucun"}
 Sweave("/data/leukemia_analysis/QC_report/QCreport.Rnw",)
 tools::texi2pdf("QCreport.tex")
 
-system(command=paste("mv QCreport.pdf ../QCreport_",libname,".pdf",sep=""))
+system(command=paste("mv QCreport.pdf ../QCreport_Lib",libname,".pdf",sep=""))
