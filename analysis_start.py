@@ -39,7 +39,7 @@ import sys, os, re, json, shutil, gzip, tarfile, bz2, pickle, urllib, time
 from bbcflib.common import set_file_descr
 from map_reads import *
 
-libs=range(int(sys.argv[1]),int(sys.argv[2]+1))
+libs=range(int(sys.argv[1]),int(sys.argv[2])+1)
 iterate=sys.argv[3]
 
 runs=libs
