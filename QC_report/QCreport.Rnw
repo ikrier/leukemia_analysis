@@ -435,7 +435,7 @@ print(xtable(df, caption=strCaption, label="unique"),
 par(mar=c(2.5,0,0,0),oma=c(0.5,0,0,0))
 number_all_on_target=as.numeric(system(paste("samtools view -c",bamname,"-L",regionsname),intern=T))
 number_uniq_on_target=as.numeric(system(paste("samtools view -F0x400 -c",rmdupfile,"-L",regionsname),intern=T))
-proportion_all=100*c(number_all_on_target,as.numeric(picardstats$TOTAL_READS[3])-number_all_on_target)/as.numeric(picardstats$TOTAL_READS[3])
+proportion_all=100*c(number_all_on_target,as.numeric(res$total)-number_all_on_target)/as.numeric(res$total)
 proportion_uniq=100*c(number_uniq_on_target,res$uniq-number_uniq_on_target)/res$uniq
 # save(number_all_on_target,number_uniq_on_target,proportion_all,proportion_uniq,file="allnumsstatsdup.RData")
 #load("allnumsstatsdup.RData")
