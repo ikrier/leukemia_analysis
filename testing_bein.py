@@ -34,7 +34,6 @@ def copying(ex,files):
 
 
 libs=range(23,24)
-iterate=str(1)
 
 runs=libs
 
@@ -42,11 +41,12 @@ files={}
 
 for run in runs:
 	runname="_".join(["Lib",str(run),"bwa"])+".bam"
-	files[run] = [f for f in listdir_fullpath('/data/leukemia_analysis/YmG3UHDpdo8pkhEb28sn/') if re.match(r'.*%s'%runname,f,re.IGNORECASE)]
+	files[run] = [f for f in listdir_fullpath('/data/leukemia_analysis/lPLlbyxGfhsY54fpzEGo') if re.match(r'.*%s'%runname,f,re.IGNORECASE)]
 	if "_R2_" in files[run][0]:
 		files[run]=files[run][::-1]
 	print files[run]
 
-M=MiniLIMS("/data/leukemia_data/leukemia_debug")
+M=MiniLIMS("/data/leukemia_data/leukemia_pipeline")
 
 copied=copying(M,files)
+

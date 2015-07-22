@@ -23,7 +23,7 @@ library("Gviz")
 library("biomaRt")
 library("BiocGenerics")
 library("RColorBrewer")
-ensembl67 <- useMart(host='may2012.archive.ensembl.org',biomart='ENSEMBL_MART_ENSEMBL') #uses ensemble67 build ("may2012.archive.ensembl.org")
+ensembl67 <- useMart(host='feb2014.archive.ensembl.org',biomart='ENSEMBL_MART_ENSEMBL') #uses ensemble67 build ("may2012.archive.ensembl.org")
 ensembl67 <- useDataset("hsapiens_gene_ensembl", mart=ensembl67)
 
 pad=100
