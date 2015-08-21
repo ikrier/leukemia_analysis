@@ -54,6 +54,18 @@ def fastqc(fastqfile,outdir=".",options=None):
 def bwa(fastqfiles,fileout):
     return {'arguments': ["/data/leukemia_analysis/companion_scripts/run_bwa_onefile.sh"]+fastqfiles+[fileout],
             'return_value': fileout}
+@program
+def bwa_notall(fastqfiles,fileout):
+    return {'arguments': ["/data/leukemia_analysis/companion_scripts/run_bwa_onefile_notall.sh"]+fastqfiles+[fileout],
+            'return_value': fileout}
+
+@program
+def markduplicates(fileout):
+    name=fileout+".metrics"
+    return {'arguments': ["/data/leukemia_analysis/companion_scripts/run_bwa_onefile_justmarkduplicates.sh"]+[fileout],
+            'return_value': name}
+
+
 
 @program
 def cutadapt(fastqfiles,suffix,rm):
@@ -73,6 +85,10 @@ def qcreport(libname,fastqfiles,bamfile):
 	libname=str(libname)
 	outfile="QCreport_"+libname+".pdf"
 	return {'arguments': ["Rscript","/data/leukemia_analysis/QC_report/run_sweave_libname.R"]+[libname]+[diamictable]+fastqfiles+bamfile+[targets]+[amplicons], 'return_value': outfile}
+
+@program
+def mergefiles(bamfiles,outname):
+	return {'arguments': ["samtools","merge"]+[outname]+bamfiles,'return_value': outname}
 
 def add_file_fastqc(execution,filename, description="", alias="None"):
     execution.add(filename,description=description,alias=alias)
@@ -109,6 +125,33 @@ def align_bwa(ex,files):
 		ex.add(alignment,alias=name,description=name)
 		ex.add(index,alias=indexname,description=indexname,associate_to_filename=alignment,template="%s.bai")
 		ex.add(metric,alias=metricname,description=metricname,associate_to_filename=alignment,template="%s.metrics")
+
+@task
+def align_bwa_notall(ex,files):
+        for file in files.keys():
+                print files[file]
+                print file
+                name="_".join(["Lib",str(file),"bwa.bam"])
+                indexname=name+".bai"
+		print "flag1"
+                alignment=bwa_notall(ex,files[file],name)
+                index=alignment+".bai"
+		print "flag2"
+                metric=markduplicates(ex,alignment)
+		print "flag3"
+                metricname=name+".metrics"
+                print name
+                print indexname
+		print metric
+		print metricname
+		pause()
+                #ex.add(alignment,alias=name,description=name)
+                #ex.add(index,alias=indexname,description=indexname,associate_to_filename=alignment,template="%s.bai")
+                #ex.add(metric,alias=metricname,description=metricname,associate_to_filename=alignment,template="%s.metrics")
+
+
+
+		
 
 @task
 def run_qc_report(ex,fastqfiles,bamfiles):
