@@ -144,10 +144,9 @@ def align_bwa_notall(ex,files):
                 print indexname
 		print metric
 		print metricname
-		pause()
-                #ex.add(alignment,alias=name,description=name)
-                #ex.add(index,alias=indexname,description=indexname,associate_to_filename=alignment,template="%s.bai")
-                #ex.add(metric,alias=metricname,description=metricname,associate_to_filename=alignment,template="%s.metrics")
+                ex.add(alignment,alias=name,description=name)
+                ex.add(index,alias=indexname,description=indexname,associate_to_filename=alignment,template="%s.bai")
+                ex.add(metric,alias=metricname,description=metricname,associate_to_filename=alignment,template="%s.metrics")
 
 
 
