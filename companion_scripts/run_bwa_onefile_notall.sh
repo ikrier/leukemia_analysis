@@ -48,4 +48,4 @@ samtools index $3
 
 #samtools index $3
 
-cat $3.out
+#cat $3.out
