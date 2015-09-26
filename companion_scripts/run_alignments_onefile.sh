@@ -8,7 +8,7 @@ then go through preprocessing from GATK :
 	- realign indels (include npm1 indels?)
 	- cut ends
 	- fix mate information
-	- recalibrate (include known variations in leukemia?)
+	- DON'T BECAUSE IT'S A SMALL TARGETED EXPERIMENT <100Mb recalibrate (include known variations in leukemia?)
 =======
 License
 =======
@@ -66,16 +66,11 @@ java -jar -Xmx4g -Djava.io.tmpdir=tmp /data/software/GenomeAnalysisTK.jar -T Ind
 
 # We fix the mate intormation and resort the files
 java -jar -Xmx4g /data/software/picard/dist/picard.jar FixMateInformation I=$3"_realigned_cutends.bam" O=$3"_realigned_cutends.srt.bam" SORT_ORDER=coordinate ADD_MATE_CIGAR=true TMP_DIR=`pwd`/tmp &>>$3.out
-samtools index $3"_realigned_cutends.srt.bam"
+samtools index $3"_final.bam"
 
-# We create the recalibration data
-java -Xmx4g -jar /data/software/GenomeAnalysisTK.jar    -T BaseRecalibrator    -R /data/genomes/Broadhs37/hs37d5.fa   -I $3"_realigned_cutends.srt.bam" -knownSites /data/test_gatk/bundle/1000G_phase1.indels.b37.vcf -knownSites /data/test_gatk/bundle/Mills_and_1000G_gold_standard.indels.b37.vcf  -knownSites /data/test_gatk/bundle/dbsnp_138.b37.vcf -o $3"_recalibration_report.grp" &>>$3.out
+# We DON'T create the recalibration data
+#java -Xmx4g -jar /data/software/GenomeAnalysisTK.jar    -T BaseRecalibrator    -R /data/genomes/Broadhs37/hs37d5.fa   -I $3"_realigned_cutends.srt.bam" -knownSites /data/test_gatk/bundle/1000G_phase1.indels.b37.vcf -knownSites /data/test_gatk/bundle/Mills_and_1000G_gold_standard.indels.b37.vcf  -knownSites /data/test_gatk/bundle/dbsnp_138.b37.vcf -o $3"_recalibration_report.grp" &>>$3.out
 
-# We recalibrate the scores
-java -Xmx4g -jar /data/software/GenomeAnalysisTK.jar -T PrintReads -R /data/genomes/Broadhs37/hs37d5.fa -I $3"_realigned_cutends.srt.bam" -BQSR $3"_recalibration_report.grp" -o $3"_final.bam" &>>$3.out
-
-
-# Done
-
-#java -jar /data/software/picard/dist/picard.jar MarkDuplicates I=$3 O=$3temp M=$3.metrics &>>$3.out
+# We DON'T recalibrate the scores
+#java -Xmx4g -jar /data/software/GenomeAnalysisTK.jar -T PrintReads -R /data/genomes/Broadhs37/hs37d5.fa -I $3"_realigned_cutends.srt.bam" -BQSR $3"_recalibration_report.grp" -o $3"_final.bam" &>>$3.out
 
