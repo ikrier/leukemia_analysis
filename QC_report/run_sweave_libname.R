@@ -13,6 +13,9 @@ for(i in 1:7)
   cat(args[i],"\n")
 }
 
+system(command=paste("java -jar /data/software/picard/dist/picard.jar MarkDuplicates I=",bamname," O=",bamname,".dups.bam M=",bamname,".metrics",sep=""))
+system(command=paste("samtools index ",bamname,".dups.bam"))
+
 system(command = paste("mkdir qcreportdir",libname,sep="_"))
 setwd(paste("qcreportdir",libname,sep="_"))
 
