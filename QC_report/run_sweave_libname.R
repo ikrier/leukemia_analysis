@@ -5,16 +5,16 @@ diamtablename=args[2]
 fastqfile1=args[3]
 fastqfile2=args[4]
 bamname=args[5]
-regionsname=args[6]
-ampliconsname=args[7]
+dupname=args[6]
+regionsname=args[7]
+ampliconsname=args[8]
 
 for(i in 1:7)
 {
   cat(args[i],"\n")
 }
 
-system(command=paste("java -jar /data/software/picard/dist/picard.jar MarkDuplicates I=",bamname," O=",bamname,".dups.bam M=",bamname,".metrics",sep=""))
-system(command=paste("samtools index ",bamname,".dups.bam"))
+.libPaths( c( .libPaths(), "/home/krier/R/x86_64-pc-linux-gnu-library/3.1/") )
 
 system(command = paste("mkdir qcreportdir",libname,sep="_"))
 setwd(paste("qcreportdir",libname,sep="_"))
@@ -31,7 +31,7 @@ if(diamname=="NONE"){diamname="Aucun"}
 # regionsname="../2ndDesignRegions.bed"
 # ampliconsname="../15189-1368439012_Amplicons.bed"
 
-Sweave("/data/leukemia_analysis/QC_report/QCreport.Rnw",)
+Sweave("/data/leukemia_analysis/QC_report/QCreport.Rnw")
 tools::texi2pdf("QCreport.tex")
 
 system(command=paste("mv QCreport.pdf ../QCreport_Lib",libname,".pdf",sep=""))

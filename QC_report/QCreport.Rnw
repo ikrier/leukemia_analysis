@@ -22,7 +22,7 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}  
 \usepackage[T1]{fontenc}
-\usepackage[frenchb]{babel}
+\usepackage[french]{babel}
 \usepackage{booktabs}
 \usepackage{graphicx, subfig}
 \usepackage[nogin]{Sweave}
@@ -244,7 +244,7 @@ legend("topright",lty=1,lwd=2,col=colors,legend=c("A","C","G","T"),cex=0.7)
 <<label=fig41plot,include=FALSE,echo=FALSE>>=
 par(mar=c(2.5,1,0,0),oma=c(0.5,1,0,0))
 par(mgp=c(1.2,0.6,0))
-GClist=as.numeric(unlist(read.table(text=system(paste("samtools view -s 2.01 ",bamname," |awk '{ n=length($10); print  gsub(/[GCgc]/,t,$10)/n;}'",sep=""),intern=T),stringsAsFactors = F)))
+GClist=as.numeric(unlist(read.table(text=system(paste("samtools view -s 2.01 -F0x0100 ",bamname," |awk '{ n=length($10); print  gsub(/[GCgc]/,t,$10)/n;}'",sep=""),intern=T),stringsAsFactors = F)))
 #GClist=as.numeric(unlist(read.table("GCoutput.txt",stringsAsFactors = F)))
 library("BSgenome.Hsapiens.UCSC.hg19")
 genome <- BSgenome.Hsapiens.UCSC.hg19
@@ -309,19 +309,19 @@ mtext("Mean depth",2,2,cex=0.6)
 \begin{center}
 <<label=table2,echo=FALSE,results=tex>>=
 clippedstartfwd=NULL
-text=system(paste("samtools view -F 0x10",bamname,"|cut -f6|perl -ne \'{/^(\\d+)S/ && print \"$1\\n\"}\' |sort|uniq -c"),intern = T)
+text=system(paste("samtools view -F 0x10 -F 0x0100 ",bamname,"|cut -f6|perl -ne \'{/^(\\d+)S/ && print \"$1\\n\"}\' |sort|uniq -c"),intern = T)
 if(length(text)!=0){clippedstartfwd=read.table(text=text,header = F,as.is = TRUE)}
 clippedstartfwd=c(rep(clippedstartfwd$V2,clippedstartfwd$V1))
 clippedstartrev=NULL
-text=system(paste("samtools view -f 0x10",bamname,"|cut -f6|perl -ne \'{/^(\\d+)S/ && print \"$1\\n\"}\' |sort|uniq -c"),intern=T)
+text=system(paste("samtools view -f 0x10 -F 0x0100 ",bamname,"|cut -f6|perl -ne \'{/^(\\d+)S/ && print \"$1\\n\"}\' |sort|uniq -c"),intern=T)
 if(length(text)!=0){clippedstartrev=read.table(text=text,header = F,as.is = TRUE)}
 clippedstartrev=c(rep(clippedstartrev$V2,clippedstartrev$V1))
 clippedendfwd=NULL
-text=system(paste("samtools view -F 0x10",bamname,"|cut -f6|perl -ne \'{/.*\\D(\\d+)S$/ && print \"$1\\n\"}\' |sort|uniq -c"),intern = T)
+text=system(paste("samtools view -F 0x10 -F 0x0100 ",bamname,"|cut -f6|perl -ne \'{/.*\\D(\\d+)S$/ && print \"$1\\n\"}\' |sort|uniq -c"),intern = T)
 if(length(text)!=0){clippedendfwd=read.table(text=text,header = F,as.is = TRUE)}
 clippedendfwd=c(rep(clippedendfwd$V2,clippedendfwd$V1))
 clippedendrev=NULL
-text=system(paste("samtools view -f 0x10",bamname,"|cut -f6|perl -ne \'{/.*\\D(\\d+)S$/ && print \"$1\\n\"}\' |sort|uniq -c"),intern = T)
+text=system(paste("samtools view -f 0x10 -F 0x0100 ",bamname,"|cut -f6|perl -ne \'{/.*\\D(\\d+)S$/ && print \"$1\\n\"}\' |sort|uniq -c"),intern = T)
 if(length(text)!=0){clippedendrev=read.table(text=text,header = F,as.is = TRUE)}
 clippedendrev=c(rep(clippedendrev$V2,clippedendrev$V1))
 df=data.frame(cat=c("Start forward","End reverse","End forward","Start reverse"),
@@ -385,7 +385,7 @@ mtext(side = 2,line = 2,text = "Fraction of targeted base-pairs covered by x fra
 @
 
 
-\begin{wrapfigure}[H]{c}{\textwidth}
+\begin{wrapfigure}[h!]{c}{\textwidth}
 \begin{center}
 \subfloat[Empirical cumulative distribution]{
 <<label=fig51,fig=TRUE,echo=FALSE,include=TRUE,height=3,width=3>>=
@@ -405,8 +405,8 @@ mtext(side = 2,line = 2,text = "Fraction of targeted base-pairs covered by x fra
 %%Add : proportion covered by a single type of fragment (after rmdup)
 \begin{center}
 <<label=table3,echo=FALSE,include=FALSE,results=tex>>=
-rmdupfile=bamname
-table=read.table(text=system(paste("samtools view -F0x400 -b ",rmdupfile," | bedtools coverage -abam - -b ",regionsname," -hist",sep=""),intern=T),fill=T)
+rmdupfile=dupname
+table=read.table(text=system(paste("samtools view -F0x400 -F0x100 -b ",rmdupfile," | bedtools coverage -abam - -b ",regionsname," -hist",sep=""),intern=T),fill=T)
 # save(table,file="rmdupstatstable.RData")
 #load("rmdupstatstable.RData")
 df=data.frame(cat=c("zero","one"),numbers=table[table$V1=="all",][1:2,3],percent=100*table[table$V1=="all",][1:2,5])
@@ -415,7 +415,7 @@ print(xtable(df, caption=strCaption, label="unique"),
       size="footnotesize", #Change size; useful for bigger tables
       include.rownames=FALSE, #Don't print rownames
       include.colnames=FALSE, #We create them ourselves
-      table.placement="H",
+      table.placement="h!",
       caption.placement="top", 
       hline.after=NULL, #We don't need hline; we use booktabs
       add.to.row = list(pos = list(-1, 
@@ -433,8 +433,8 @@ print(xtable(df, caption=strCaption, label="unique"),
 %%Add : proportion of reads within the target regions
 <<label=fig6plot,echo=FALSE,include=FALSE>>=
 par(mar=c(2.5,0,0,0),oma=c(0.5,0,0,0))
-number_all_on_target=as.numeric(system(paste("samtools view -c",bamname,"-L",regionsname),intern=T))
-number_uniq_on_target=as.numeric(system(paste("samtools view -F0x400 -c",rmdupfile,"-L",regionsname),intern=T))
+number_all_on_target=as.numeric(system(paste("samtools view -F 0x100 -c",bamname,"-L",regionsname),intern=T))
+number_uniq_on_target=as.numeric(system(paste("samtools view -F0x400 -F 0x100 -c",rmdupfile,"-L",regionsname),intern=T))
 proportion_all=100*c(number_all_on_target,as.numeric(res$total)-number_all_on_target)/as.numeric(res$total)
 proportion_uniq=100*c(number_uniq_on_target,res$uniq-number_uniq_on_target)/res$uniq
 # save(number_all_on_target,number_uniq_on_target,proportion_all,proportion_uniq,file="allnumsstatsdup.RData")
@@ -483,7 +483,7 @@ p <- ggplot(subset(s.kmers, kmer %in% top.kmers)) + geom_bar(aes(x=position, y=c
 p + theme(legend.key.size =  unit(0.15, "in")) + theme(legend.text = element_text(size=5))
 @
 
-\begin{wrapfigure}[H]{c}{\textwidth}
+\begin{wrapfigure}[h!]{c}{\textwidth}
 \begin{center}
 <<label=fig8,fig=TRUE,echo=FALSE,include=TRUE,height=6,width=7>>=
 <<fig8plot>>
@@ -547,7 +547,7 @@ for(name in  unique(targets$name))
       include.rownames=TRUE, #Don't print rownames
       include.colnames=FALSE, #We create them ourselves
       caption.placement="top", 
-      table.placement="H",
+      table.placement="h!",
       hline.after=NULL, #We don't need hline; we use booktabs
       add.to.row = list(pos = list(-1, 
                                    nrow(df)),
