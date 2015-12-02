@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-plot_gene_profile=function(range,bamname,rmdupfile,targets,amplicons,title)
+plot_gene_profile=function(range,bamname,rmdupfile,targets,amplicons,title,libsize)
 {
 library("Gviz")
 library("biomaRt")
@@ -59,11 +59,13 @@ granges2u=grangesu
 granges2u$both=NULL
 rm(grangesu)
 gtrack <- GenomeAxisTrack()
-dTrackGrange2=DataTrack(granges2,ylim=c(-17500,17500),name="Stranded coverage")
-dTrackGrange2u=DataTrack(granges2u,ylim=c(-50,50),name="Unique coverage")
+reflibsize=15000000
+fractionlib=libsize/reflibsize
+dTrackGrange2=DataTrack(granges2,ylim=c(-17500*fractionlib,17500*fractionlib),name="Stranded coverage")
+dTrackGrange2u=DataTrack(granges2u,ylim=c(-60,60)*fractionlib,name="Unique coverage")
 dTrackns <- DataTrack(range=bamname, genome="hg19", name="Total coverage",
                       window=-1, chromosome=seqnames(range),
-                      stream=TRUE,ylim=c(0,35000),importFunction = import.bam)
+                      stream=TRUE,ylim=c(0,35000)*fractionlib,importFunction = import.bam)
 displayPars(dTrackGrange2)$groups=c("+","-")
 displayPars(dTrackGrange2)$col= c("#0099FF","#FF33CC")
 displayPars(dTrackGrange2u)$groups=c("+","-")

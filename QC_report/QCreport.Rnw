@@ -16,7 +16,7 @@
 % # 
 % # You should have received a copy of the GNU General Public License
 % # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+% # TO DO : add the quality plot and the downsampling plot. Allow for scaling depending on library sizes.
 
 
 \documentclass{article}
@@ -37,6 +37,8 @@
 \usepackage[a4paper, total={7in, 9in}]{geometry}
 
 \usepackage{wrapfig}
+
+\usepackage{lscape} 
 
 \title{Sequencing and mapping QC for library \Sexpr{libname}, DIAMIC sample \Sexpr{diamname}}
 \date{\today}
@@ -401,6 +403,74 @@ mtext(side = 2,line = 2,text = "Fraction of targeted base-pairs covered by x fra
 \end{center}
 \end{wrapfigure}
 
+%%Add the mapping quality graph:
+<<label=fig5primeplot,include=FALSE,echo=FALSE>>=
+system(command=paste("samtools view ",bamname,"|cut -f5|sort|uniq -c >distribution_quals_lib.txt"))
+quals=read.table("distribution_quals_lib.txt")
+plot(quals$V2/max(quals$V2),quals$V1/sum(quals$V1),
+     cex=0.6,pch=19,
+     xlab="Mapping quality/max(quality)",
+     ylab="Density of reads with mapping quality")
+@
+
+
+\begin{wrapfigure}[h!]{c}{\textwidth}
+\begin{center}
+{
+<<label=fig5prime,fig=TRUE,echo=FALSE,include=TRUE,height=4,width=4>>=
+<<fig5primeplot>>
+@
+}
+\caption{\textbf{Mapping quality distribution} Density of normalized mapping quality of reads.}
+\end{center}
+\end{wrapfigure}
+
+
+%%Add the downsampling test figure :
+<<label=downsampling,include=FALSE,echo=FALSE>>=
+rates=c("1","0.5","0.25")
+for(d in rates)
+  {
+  system(command=paste("samtools view -b -s",d," ",bamname," |coverageBed -abam - -b /data/TruSight_analysis/Targets_disjoint_noprimers.trusight.bed -d >density",d,".out",sep=""))
+  #system(command=paste("samtools view -b -s",d," ",bamname," |coverageBed -abam - -b /data/TruSight_analysis/Targets_disjoint_noprimers.trusight.bed -hist >hist",d,".out",sep=""))
+  }
+#hists=list()
+covs=list()
+for(rate in rates)
+{
+  #hists[[rate]]=read.table(paste("hist",rate,".out",sep=""),fill=T)
+  covs[[rate]]=read.table(paste("density",rate,".out",sep=""))
+}
+cols=brewer.pal(length(rates),"BuPu")[length(rates):1]
+cov=covs[[1]]
+par(mar=c(7,4,1,1))
+plot(unique(sort(cov$V4)),tapply(cov$V6,INDEX = cov$V4,FUN = function(x){sum(x>250)/length(x)}),
+             ylim=c(0,1),las=2,ylab="Proportion with 250-fold coverage",
+             col=cols[length(rates)],pch="-",cex=0.1)
+for(i in 1:length(rates))
+{
+  cov=covs[[rates[i]]]
+  par(new=F)
+  points(tapply(cov$V6,INDEX = cov$V4,FUN = function(x){sum(x>250)/length(x)}),
+               las=2,col=cols[i-1],pch="-",cex=1.5)
+}
+abline(v=seq(0.5,length(unique(cov$V4))+0.5,1),lty=3)
+
+legend("bottomright",pch="-",pt.cex=2,col=c(1,cols[1:2]),legend=rates,title="Subsampling proportion",bg=0)
+@
+
+\begin{landscape} 
+\begin{wrapfigure}[h!]{c}{\textwidth}
+\begin{center}
+{
+<<label=figdownsample,fig=TRUE,echo=FALSE,include=TRUE,height=6,width=8>>=
+<<downsampling>>
+@
+}
+\caption{\textbf{Downsampling tests} Proportion of each target region which would reach sufficient coverage if sequencing lower library sizes.}
+\end{center}
+\end{wrapfigure}
+\end{landscape} 
 
 %%Add : proportion covered by a single type of fragment (after rmdup)
 \begin{center}
@@ -519,6 +589,7 @@ for(name in names(list_gene_ranges))
 #list_gene_ranges=list_gene_ranges[1:3]
 @
 
+
 \clearpage
 \section{Individual targeted region coverage}
 
@@ -530,19 +601,22 @@ coveragetargets$index=paste("chr",coveragetargets$V1,":",coveragetargets$V2,"-",
 i=0
 coveragetargetsuniq$index=paste("chr",coveragetargetsuniq$V1,":",coveragetargetsuniq$V2,"-",coveragetargetsuniq$V3," ",coveragetargetsuniq$V4,sep="")
 i=0
-percent=numeric()
+percent1=numeric()
+percent2=numeric()
 percentU=numeric()
-mincov=100
+mincov1=500
+mincov2=1000
 mincovU=1
-for(name in unique(coveragetargets$index)){percent[name]=plot_cumul_cov(coveragetargets,name,min=mincov)}
+for(name in unique(coveragetargets$index)){percent1[name]=plot_cumul_cov(coveragetargets,name,min=mincov1)}
+for(name in unique(coveragetargets$index)){percent2[name]=plot_cumul_cov(coveragetargets,name,min=mincov2)}
 for(name in unique(coveragetargetsuniq$index)){percentU[name]=plot_cumul_cov(coveragetargetsuniq,name,min=mincovU)}
 for(name in  unique(targets$name))
 {
   i=i+1
-  which=grep(pattern = paste(name,"\\>",sep=""),names(percent))
-  df=data.frame(all=percent[which],uniq=percentU[which])
+  which=grep(pattern = paste(name,"\\>",sep=""),names(percent1))
+  df=data.frame(all1=percent1[which],all2=percent2[which],uniq=percentU[which])
   strCaption <- paste0("Coverage table for targeted regions of ",paste(unlist(strsplit(name,"_")),collapse="\\_"),sep="")
-  print(xtable(df, digits=2, caption=strCaption, label="StatsTable",align="rll"), 
+  print(xtable(df, digits=2, caption=strCaption, label="StatsTable",align="rlll"), 
       size="footnotesize", #Change size; useful for bigger tables
       include.rownames=TRUE, #Don't print rownames
       include.colnames=FALSE, #We create them ourselves
@@ -552,7 +626,7 @@ for(name in  unique(targets$name))
       add.to.row = list(pos = list(-1, 
                                    nrow(df)),
                         command = c(paste("\\toprule \n",
-                                          "Region & \\% covered by > ",mincov," alignements total & >",mincovU," unique\\\\\n", 
+                                          "Region & \\% covered by >",mincov1, " & >", mincov2 ," total & >",mincovU," unique\\\\\n", 
                                           "\\midrule \n",sep=""),
                                     "\\bottomrule \n")
                         )
@@ -598,7 +672,7 @@ for(name in names(list_gene_ranges))
 {
   graphfile=paste(name,".pdf", sep="")
   pdf(file=graphfile,width=7, height=7)
-  plot_gene_profile(list_gene_ranges[[name]],bamname,rmdupfile,regionsname,ampliconsname,name)
+  plot_gene_profile(list_gene_ranges[[name]],bamname,rmdupfile,regionsname,ampliconsname,name,as.numeric(picardstats$PF_READS_ALIGNED[3]))
   dev.off()
   cat("\\begin{wrapfigure}{c}{\\textwidth}\n\\begin{center}\n\\includegraphics{",graphfile, "}\n\\end{center}\n\\end{wrapfigure}", sep="")
   #Option : add \n\\caption{Profil de couverture de ",name," but have to reformat it properly
