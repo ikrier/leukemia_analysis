@@ -60,7 +60,7 @@ java -jar -Xmx4g -Djava.io.tmpdir=tmp /data/software/GenomeAnalysisTK.jar -T Rea
 java -jar -Xmx4g -Djava.io.tmpdir=tmp /data/software/GenomeAnalysisTK.jar -T IndelRealigner -R /data/genomes/Broadhs37/hs37d5.fa -I $3".bam" -targetIntervals forIndelRealigner_$3".intervals" -known /data/test_gatk/bundle/Mills_and_1000G_gold_standard.indels.b37.vcf -known /data/test_gatk/bundle/1000G_phase1.indels.b37.vcf -o $3"_realigned.bam" --maxReadsForRealignment 500000 -maxInMemory 500000 &>>$3.out
 
 # We cut the ends
-/data/TruSight_analysis/scripts/remove_probes.py $bedfile $3"_realigned.bam" $3"_realigned_cutends.bam"
+/data/leukemia_analysis/companion_scripts/remove_probes.py $bedfile $3"_realigned.bam" $3"_realigned_cutends.bam"
 
 # We fix the mate intormation and resort the files
 java -jar -Xmx4g /data/software/picard/dist/picard.jar FixMateInformation I=$3"_realigned_cutends.bam" O=$3"_realigned_cutends.srt.bam" SORT_ORDER=coordinate ADD_MATE_CIGAR=true TMP_DIR=`pwd`/tmp &>>$3.out
