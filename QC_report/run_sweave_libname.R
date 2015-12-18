@@ -23,6 +23,8 @@ ampliconsname=args[8] #The bed file of the amplicons
 # Example command to run the script :
 # Rscript run_sweave_libname.R 1 table_samples.csv Lib_1_R1.fastq Lib_1_R2.fastq Lib_1.bam Lib_1.dups.bam target_regions.bed amplicons_regions.bed
 # "diamtable" would be comma-separated values with the first being the library name and the second the sample ID.
+# Working example :
+# Rscript /data/leukemia_analysis/QC_report/run_sweave_libname.R 49 /data/leukemia_analysis/diamtable.csv /data/TruSight_analysis/BM-cyto-1_S1_R1.fastq.gz  /data/TruSight_analysis/BM-cyto-1_S1_R2.fastq.gz /data/TruSight_analysis/Lib_49_realigned_cutends.srt.bam /data/TruSight_analysis/Lib_49_realigned_cutends.srt.dups.bam /data/TruSight_analysis/Targets_disjoint_noprimers.trusight.bed /data/TruSight_analysis/trusight-myeloid-amplicon-track.bed 
 
 for(i in 1:7)
 {
