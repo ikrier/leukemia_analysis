@@ -30,6 +30,8 @@ ampliconsname=args[8] #The bed file of the amplicons
 # "diamtable" would be comma-separated values with the first being the library name and the second the sample ID.
 # Working example :
 # Rscript /data/leukemia_analysis/QC_report/run_sweave_libname.R 49 /data/leukemia_analysis/diamtable.csv /data/TruSight_analysis/BM-cyto-1_S1_R1.fastq.gz  /data/TruSight_analysis/BM-cyto-1_S1_R2.fastq.gz /data/TruSight_analysis/Lib_49_realigned_cutends.srt.bam /data/TruSight_analysis/Lib_49_realigned_cutends.srt.dups.bam /data/TruSight_analysis/Targets_disjoint_noprimers.trusight.bed /data/TruSight_analysis/trusight-myeloid-amplicon-track.bed 
+# The library with bamname also needs to have a "metrics" file associated with the name bamname.metrics, 
+# which is automatically produced when running the alignment scripts run_alignments_onefile.sh and run_alignments_onefile_better.sh
 
 for(i in 1:7)
 {
