@@ -7,6 +7,11 @@ library("BSgenome.Hsapiens.UCSC.hg19")
 library("rtracklayer")
 library(RColorBrewer)
 
+#In addition the program requires the following programs to be installed :
+# Picard
+# Samtools
+# Bedtools
+
 #This program can be run providing a number of arguments read from the command line :
 
 args <- commandArgs(trailingOnly = TRUE)
