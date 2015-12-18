@@ -42,9 +42,13 @@ fi
 
 echo "Running alignments on" $1 "and" $2 "to create "$3".bam"
 
+#Just in case this affects anything let's remove the adaptors :
+cutadapt -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT "$1" "$2" -o $3"_R1.fastq.gz" -p $3"_R2.fastq.gz" -m 20 &>$3".out"
+
+
 # Read groups are necessary for downstream processing
 # Working with single files, not all are useful, but for batch-processing it will be
-bwa mem -t 4 -M -v 2 -R "@RG\tID:$3\tSM:$3\tPL:ILLUMINA\tLB:$3" /data/genomes/Broadhs37/hs37d5.fa.gz $1 $2 2>$3.out|samtools view -bSu - |samtools sort - -f $3".bam"
+bwa mem -t 4 -M -v 2 -R "@RG\tID:$3\tSM:$3\tPL:ILLUMINA\tLB:$3" /data/genomes/Broadhs37/hs37d5.fa.gz $3"_R1.fastq.gz" $3"_R2.fastq.gz" 2>$3.out|samtools view -bSu - |samtools sort - -f $3".bam"
 samtools index $3".bam"
 
 # Choose the proper amplicons file
@@ -73,4 +77,8 @@ samtools index $3"_realigned_cutends.srt.bam"
 
 # We DON'T recalibrate the scores
 #java -Xmx4g -jar /data/software/GenomeAnalysisTK.jar -T PrintReads -R /data/genomes/Broadhs37/hs37d5.fa -I $3"_realigned_cutends.srt.bam" -BQSR $3"_recalibration_report.grp" -o $3"_final.bam" &>>$3.out
+
+#We mark the duplicates and create another file :
+java -jar /data/software/picard/dist/picard.jar MarkDuplicates I=$3"_realigned_cutends.srt.bam" O=$3"_realigned_cutends.srt.dups.bam" M=$3"_realigned_cutends.srt.bam.metrics" &>>$3.out
+samtools index $3"_realigned_cutends.srt.dups.bam"
 

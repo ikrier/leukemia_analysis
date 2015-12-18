@@ -1,13 +1,28 @@
+# Here are the libraries to load for this to work :
+library(xtable)
+library("qrqc")
+library("RColorBrewer")
+library("RColorBrewer")
+library("BSgenome.Hsapiens.UCSC.hg19")
+library("rtracklayer")
+library(RColorBrewer)
+
+#This program can be run providing a number of arguments read from the command line :
+
 args <- commandArgs(trailingOnly = TRUE)
 
-libname=args[1]
-diamtablename=args[2]
-fastqfile1=args[3]
-fastqfile2=args[4]
-bamname=args[5]
-dupname=args[6]
-regionsname=args[7]
-ampliconsname=args[8]
+libname=args[1] #Library name
+diamtablename=args[2] #A correspondance table between library name and DIAMIC sample number
+fastqfile1=args[3] #The first fastq file for paired sequencing
+fastqfile2=args[4] #The second
+bamname=args[5] #The bam library
+dupname=args[6] #The bam library with duplicates marked
+regionsname=args[7] #The bed file of the target regions
+ampliconsname=args[8] #The bed file of the amplicons
+
+# Example command to run the script :
+# Rscript run_sweave_libname.R 1 table_samples.csv Lib_1_R1.fastq Lib_1_R2.fastq Lib_1.bam Lib_1.dups.bam target_regions.bed amplicons_regions.bed
+# "diamtable" would be comma-separated values with the first being the library name and the second the sample ID.
 
 for(i in 1:7)
 {
